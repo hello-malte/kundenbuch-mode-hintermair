@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Search, Plus, User, X, Settings, Trash2, Cake, Scissors } from 'lucide-react';
+import { Search, Plus, User, X, Settings, Trash2, Cake } from 'lucide-react';
 import { db, createCustomer, deleteCustomer } from '../db/database';
 import Logo from '../components/Logo';
 import BackupMenu from '../components/BackupMenu';
@@ -9,12 +9,6 @@ import BackupMenu from '../components/BackupMenu';
 function todayMonthDay() {
   const d = new Date();
   return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function tomorrowDateString() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function computeAge(geburtstag) {
@@ -58,20 +52,6 @@ export default function CustomerList() {
       (c) => c.geburtstag && c.geburtstag.slice(5) === md
     );
   }, [customers]);
-
-  const dueTomorrow = useLiveQuery(async () => {
-    const tomorrow = tomorrowDateString();
-    const items = await db.alterations
-      .filter((a) => !a.erledigt && a.fertig_bis === tomorrow)
-      .toArray();
-    if (!items.length) return [];
-    const ids = [...new Set(items.map((a) => a.kunden_id))];
-    const custs = await db.customers.bulkGet(ids);
-    const map = new Map(custs.filter(Boolean).map((c) => [c.id, c]));
-    return items
-      .map((a) => ({ ...a, customer: map.get(a.kunden_id) }))
-      .filter((a) => a.customer);
-  }, []) || [];
 
   const handleNew = async () => {
     const id = await createCustomer({ vorname: '', nachname: '' });
@@ -146,36 +126,6 @@ export default function CustomerList() {
                         {age != null && (
                           <span className="text-muted font-normal"> ({age})</span>
                         )}
-                      </Link>
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {dueTomorrow.length > 0 && (
-        <div className="px-4 pt-3">
-          <div className="bg-brand text-white rounded-2xl p-3 flex items-start gap-3">
-            <Scissors size={22} className="shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <div className="text-xs uppercase tracking-wider font-medium opacity-90">
-                Morgen fertig
-              </div>
-              <div className="text-sm mt-0.5 leading-relaxed">
-                {dueTomorrow.map((a, i) => {
-                  const c = a.customer;
-                  const name = `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Unbenannt';
-                  return (
-                    <span key={a.id}>
-                      {i > 0 && ', '}
-                      <Link
-                        to={`/kunden/${c.id}/aenderungen`}
-                        className="font-medium underline-offset-2"
-                      >
-                        {name}
                       </Link>
                     </span>
                   );

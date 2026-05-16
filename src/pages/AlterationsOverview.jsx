@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Scissors, User, Search, X } from 'lucide-react';
+import { Scissors, User, Search, X, AlertTriangle, Clock } from 'lucide-react';
 import { db, toggleAlterationDone } from '../db/database';
 
 export default function AlterationsOverview() {
@@ -33,14 +33,27 @@ export default function AlterationsOverview() {
     });
   }, [data, onlyOpen, q]);
 
-  const dueTomorrow = useMemo(() => {
-    if (!data) return [];
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    const tomorrowStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    return data.filter(
-      (i) => !i.erledigt && i.fertig_bis === tomorrowStr
-    );
+  const groupedByDueDate = useMemo(() => {
+    const result = { overdue: [], today: [], tomorrow: [] };
+    if (!data) return result;
+
+    const fmt = (d) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const todayStr = fmt(now);
+    const t = new Date(now);
+    t.setDate(t.getDate() + 1);
+    const tomorrowStr = fmt(t);
+
+    for (const i of data) {
+      if (i.erledigt || !i.fertig_bis) continue;
+      if (i.fertig_bis < todayStr) result.overdue.push(i);
+      else if (i.fertig_bis === todayStr) result.today.push(i);
+      else if (i.fertig_bis === tomorrowStr) result.tomorrow.push(i);
+    }
+    return result;
   }, [data]);
 
   if (data === undefined) {
@@ -77,34 +90,34 @@ export default function AlterationsOverview() {
         </div>
       </header>
 
-      {dueTomorrow.length > 0 && (
-        <div className="px-4 pt-3">
-          <div className="bg-brand text-white rounded-2xl p-3 flex items-start gap-3">
-            <Scissors size={22} className="shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <div className="text-xs uppercase tracking-wider font-medium opacity-90">
-                Morgen fertig
-              </div>
-              <div className="text-sm mt-0.5 leading-relaxed">
-                {dueTomorrow.map((a, i) => {
-                  const c = a.customer;
-                  const name =
-                    `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Unbenannt';
-                  return (
-                    <span key={a.id}>
-                      {i > 0 && ', '}
-                      <Link
-                        to={`/kunden/${c.id}/aenderungen`}
-                        className="font-medium underline-offset-2"
-                      >
-                        {name}
-                      </Link>
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+      {(groupedByDueDate.overdue.length > 0 ||
+        groupedByDueDate.today.length > 0 ||
+        groupedByDueDate.tomorrow.length > 0) && (
+        <div className="px-4 pt-3 space-y-2">
+          {groupedByDueDate.overdue.length > 0 && (
+            <DueBanner
+              tone="overdue"
+              icon={AlertTriangle}
+              label="Überfällig"
+              items={groupedByDueDate.overdue}
+            />
+          )}
+          {groupedByDueDate.today.length > 0 && (
+            <DueBanner
+              tone="today"
+              icon={Clock}
+              label="Heute fertig"
+              items={groupedByDueDate.today}
+            />
+          )}
+          {groupedByDueDate.tomorrow.length > 0 && (
+            <DueBanner
+              tone="tomorrow"
+              icon={Scissors}
+              label="Morgen fertig"
+              items={groupedByDueDate.tomorrow}
+            />
+          )}
         </div>
       )}
 
@@ -214,5 +227,57 @@ export function OverviewRow({ item, hrefTab, onToggle }) {
         </Link>
       </div>
     </li>
+  );
+}
+
+const BANNER_TONES = {
+  overdue: {
+    container: 'bg-brand text-white',
+    label: 'opacity-90',
+    link: 'text-white'
+  },
+  today: {
+    container: 'bg-brand/55 text-white',
+    label: 'opacity-90',
+    link: 'text-white'
+  },
+  tomorrow: {
+    container: 'bg-brand/15 text-ink ring-1 ring-brand/40',
+    label: 'text-brand',
+    link: 'text-ink'
+  }
+};
+
+function DueBanner({ tone, icon: Icon, label, items }) {
+  const t = BANNER_TONES[tone];
+  return (
+    <div className={`${t.container} rounded-2xl p-3 flex items-start gap-3`}>
+      <Icon size={22} className={`shrink-0 mt-0.5 ${tone === 'tomorrow' ? 'text-brand' : ''}`} />
+      <div className="flex-1 min-w-0">
+        <div
+          className={`text-xs uppercase tracking-wider font-medium ${t.label}`}
+        >
+          {label}
+        </div>
+        <div className="text-sm mt-0.5 leading-relaxed">
+          {items.map((a, i) => {
+            const c = a.customer;
+            const name =
+              `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Unbenannt';
+            return (
+              <span key={a.id}>
+                {i > 0 && ', '}
+                <Link
+                  to={`/kunden/${c.id}/aenderungen`}
+                  className={`font-medium underline-offset-2 ${t.link}`}
+                >
+                  {name}
+                </Link>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
