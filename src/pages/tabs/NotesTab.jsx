@@ -52,7 +52,7 @@ export default function NotesTab({ customer }) {
   return (
     <div className="space-y-4 pb-4">
       <label className="block">
-        <span className="text-xs text-muted mb-1 block">Freitext</span>
+        <span className="text-xs text-muted mb-1 block">Persönlich</span>
         <textarea
           value={form.notizen_freitext || ''}
           onChange={(e) => set('notizen_freitext', e.target.value)}
@@ -65,7 +65,7 @@ export default function NotesTab({ customer }) {
       <div className="grid grid-cols-3 gap-2">
         {[
           ['groesse_oberteil', 'Oberteil'],
-          ['groesse_hose', 'Hose/Rock'],
+          ['groesse_hose', 'Unterteil'],
           ['schuhgroesse', 'Schuhe']
         ].map(([k, label]) => (
           <label key={k}>
