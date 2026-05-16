@@ -90,7 +90,7 @@ export default function CustomerProfile() {
                   href={waHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-whatsapp text-white font-medium text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-1.5 bg-brand text-white font-medium text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
                   aria-label="WhatsApp öffnen"
                 >
                   <WhatsAppIcon /> WhatsApp
@@ -101,7 +101,7 @@ export default function CustomerProfile() {
                   href={mapsHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-ink text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-1.5 bg-brand text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
                   aria-label="Route in Google Maps"
                 >
                   <Navigation size={14} /> Route

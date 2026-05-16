@@ -240,38 +240,39 @@ function EntryCard({ entry, hidden, onEdit }) {
 
   return (
     <li className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 text-xs text-muted">
-        <span>
-          {date.toLocaleDateString('de-DE', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          })}{' '}
-          ·{' '}
-          {date.toLocaleTimeString('de-DE', {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
+      <div className="flex items-center justify-between gap-2 px-4 py-3">
+        <div className="text-brand font-bold text-base min-w-0">
+          <span>
+            {date.toLocaleDateString('de-DE', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })}
+            {' · '}
+            {date.toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </span>
           {artikel.length > 1 && (
-            <span className="ml-2 text-brand">
-              · {artikel.length} Artikel
-            </span>
+            <span className="font-medium opacity-80"> · {artikel.length} Artikel</span>
           )}
-        </span>
-        <div className="flex items-center gap-1">
+        </div>
+        <div className="flex items-center gap-1 text-muted shrink-0">
           <button
             onClick={onEdit}
             className="p-1.5 active:opacity-60"
             aria-label="Bearbeiten"
           >
-            <Edit3 size={14} />
+            <Edit3 size={16} />
           </button>
           <button
             onClick={handleDelete}
             className="p-1.5 active:opacity-60"
             aria-label="Löschen"
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
