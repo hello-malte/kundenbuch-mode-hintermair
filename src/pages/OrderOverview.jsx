@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Share2 } from 'lucide-react';
+import { Share2, Search, X } from 'lucide-react';
 import { db } from '../db/database';
 import { shareText } from '../utils/share';
 
 export default function OrderOverview() {
   const [onlyOpen, setOnlyOpen] = useState(true);
+  const [q, setQ] = useState('');
   const [toast, setToast] = useState('');
 
   const data = useLiveQuery(async () => {
@@ -24,7 +25,12 @@ export default function OrderOverview() {
     return <div className="p-8 text-muted">Lade …</div>;
   }
 
-  const filtered = data.filter((i) => !onlyOpen || !i.erledigt);
+  const t = q.trim().toLowerCase();
+  const filtered = data.filter((i) => {
+    if (onlyOpen && i.erledigt) return false;
+    if (!t) return true;
+    return (i.brand || '').toLowerCase().includes(t);
+  });
   const byBrand = {};
   for (const i of filtered) {
     const b = i.brand.trim().toUpperCase();
@@ -69,19 +75,40 @@ export default function OrderOverview() {
 
   return (
     <div className="safe-top">
-      <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Order</h1>
-        <button
-          onClick={handleShare}
-          disabled={!brands.length}
-          className="p-2 text-brand disabled:opacity-30 active:opacity-60"
-          aria-label="Teilen"
-        >
-          <Share2 size={22} />
-        </button>
+      <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-2xl font-semibold tracking-tight">Order</h1>
+          <button
+            onClick={handleShare}
+            disabled={!brands.length}
+            className="p-2 text-brand disabled:opacity-30 active:opacity-60"
+            aria-label="Teilen"
+          >
+            <Share2 size={22} />
+          </button>
+        </div>
+        <div className="relative">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+          <input
+            type="search"
+            placeholder="Brand"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="w-full bg-surface text-ink placeholder-muted rounded-xl pl-10 pr-9 py-3 outline-none focus:ring-1 focus:ring-brand ring-1 ring-black/5"
+          />
+          {q && (
+            <button
+              onClick={() => setQ('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted p-1"
+              aria-label="Suche leeren"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </header>
 
-      <div className="px-4 flex items-center justify-between mb-3">
+      <div className="px-4 flex items-center justify-between mb-3 mt-1">
         <span className="text-sm text-muted">
           {filtered.length} Eintrag{filtered.length === 1 ? '' : 'e'} ·{' '}
           {brands.length} Brand{brands.length === 1 ? '' : 's'}

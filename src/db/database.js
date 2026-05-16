@@ -146,7 +146,7 @@ export async function deleteOrderItem(id) {
   return db.order_items.delete(id);
 }
 
-export async function addAlteration({ customerId, beschreibung, fotos }) {
+export async function addAlteration({ customerId, beschreibung, fotos, fertig_bis }) {
   const now = new Date().toISOString();
   const text = (beschreibung || '').trim();
   if (!text && !(fotos?.length)) {
@@ -157,6 +157,7 @@ export async function addAlteration({ customerId, beschreibung, fotos }) {
     datum: now,
     beschreibung: text,
     fotos: fotos || [],
+    fertig_bis: fertig_bis || '',
     erledigt: false,
     erledigt_am: null,
     erstellt_am: now
@@ -169,6 +170,9 @@ export async function updateAlteration(id, patch) {
   const next = { ...existing, ...patch };
   if (patch.beschreibung !== undefined) {
     next.beschreibung = patch.beschreibung.trim();
+  }
+  if (patch.fertig_bis !== undefined) {
+    next.fertig_bis = patch.fertig_bis || '';
   }
   return db.alterations.put(next);
 }

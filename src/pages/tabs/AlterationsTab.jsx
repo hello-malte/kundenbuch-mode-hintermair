@@ -125,6 +125,7 @@ export default function AlterationsTab({ customerId }) {
 function AlterationEditor({ title, initial, onCancel, onSave }) {
   const [beschreibung, setBeschreibung] = useState(initial?.beschreibung || '');
   const [fotos, setFotos] = useState(initial?.fotos || []);
+  const [fertigBis, setFertigBis] = useState(initial?.fertig_bis || '');
   const [saving, setSaving] = useState(false);
   const fileRef = useRef(null);
 
@@ -143,7 +144,7 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
     if (!hasContent || saving) return;
     setSaving(true);
     try {
-      await onSave({ beschreibung, fotos });
+      await onSave({ beschreibung, fotos, fertig_bis: fertigBis });
     } finally {
       setSaving(false);
     }
@@ -165,6 +166,17 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
         rows={3}
         className="w-full bg-surface2 rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
       />
+
+      <label className="block">
+        <span className="text-xs text-muted mb-1 block">Fertig bis</span>
+        <input
+          type="date"
+          value={fertigBis}
+          onChange={(e) => setFertigBis(e.target.value)}
+          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none text-base text-left focus:ring-1 focus:ring-brand"
+          style={{ colorScheme: 'light' }}
+        />
+      </label>
 
       <div className="flex gap-2 overflow-x-auto scroll-touch -mx-1 px-1">
         {fotos.map((p, i) => (
@@ -254,6 +266,9 @@ function AlterationCard({ item, hidden, onEdit }) {
               {item.beschreibung}
             </p>
           )}
+          {item.fertig_bis && !item.erledigt && (
+            <DueBadge dateStr={item.fertig_bis} />
+          )}
         </div>
         <div className="flex flex-col gap-1 shrink-0">
           <button
@@ -280,5 +295,37 @@ function AlterationCard({ item, hidden, onEdit }) {
         shareText={item.beschreibung || ''}
       />
     </li>
+  );
+}
+
+function DueBadge({ dateStr }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dateStr);
+  due.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
+
+  let label;
+  let tone;
+  if (diffDays < 0) {
+    label = `Überfällig seit ${due.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}`;
+    tone = 'bg-red-600 text-white';
+  } else if (diffDays === 0) {
+    label = 'Heute fertig';
+    tone = 'bg-brand text-white';
+  } else if (diffDays === 1) {
+    label = 'Morgen fertig';
+    tone = 'bg-brand text-white';
+  } else {
+    label = `Fertig bis ${due.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}`;
+    tone = 'bg-brand/10 text-brand';
+  }
+
+  return (
+    <span
+      className={`inline-block mt-1.5 text-xs font-medium rounded-full px-2.5 py-0.5 ${tone}`}
+    >
+      {label}
+    </span>
   );
 }
