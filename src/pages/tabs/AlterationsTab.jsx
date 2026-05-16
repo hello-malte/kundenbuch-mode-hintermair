@@ -14,7 +14,7 @@ import PhotoCarousel from '../../components/PhotoCarousel';
 export default function AlterationsTab({ customerId }) {
   const [composing, setComposing] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [showDone, setShowDone] = useState(false);
+  const [showDone, setShowDone] = useState(true);
 
   const items = useLiveQuery(
     () =>

@@ -1,8 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Users, ShoppingBag } from 'lucide-react';
+import { Users, Scissors, Bookmark, ShoppingBag } from 'lucide-react';
 
 const tabs = [
   { to: '/kunden', label: 'Kunden', icon: Users, match: '/kunden' },
+  { to: '/aenderungen', label: 'Änderungen', icon: Scissors, match: '/aenderungen' },
+  { to: '/reservierungen', label: 'Reservierungen', icon: Bookmark, match: '/reservierungen' },
   { to: '/order', label: 'Order', icon: ShoppingBag, match: '/order' }
 ];
 
@@ -17,12 +19,14 @@ export default function BottomTabBar() {
             <NavLink
               key={to}
               to={to}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors duration-200 ${
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 transition-colors duration-200 ${
                 active ? 'text-brand' : 'text-muted'
               }`}
             >
-              <Icon size={24} strokeWidth={active ? 2.2 : 1.7} />
-              <span className="text-[11px] tracking-wide">{label}</span>
+              <Icon size={22} strokeWidth={active ? 2.2 : 1.7} />
+              <span className="text-[10px] tracking-tight truncate max-w-full">
+                {label}
+              </span>
             </NavLink>
           );
         })}

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   useParams,
   useNavigate,
@@ -42,29 +42,66 @@ export default function CustomerProfile() {
   );
 
   const swipeStart = useRef(null);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
   const onTouchStart = (e) => {
     if (e.touches.length > 1) {
       swipeStart.current = null;
       return;
     }
     const t = e.touches[0];
-    swipeStart.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+    swipeStart.current = { x: t.clientX, y: t.clientY, locked: null };
+  };
+  const onTouchMove = (e) => {
+    const start = swipeStart.current;
+    if (!start) return;
+    const t = e.touches[0];
+    if (!t) return;
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+
+    if (!start.locked) {
+      const ax = Math.abs(dx);
+      const ay = Math.abs(dy);
+      if (ax > 6 || ay > 6) {
+        if (ax > ay * 1.3) {
+          start.locked = 'h';
+          setIsDragging(true);
+        } else {
+          start.locked = 'v';
+        }
+      }
+    }
+    if (start.locked === 'h') {
+      let offset = dx;
+      if (
+        (currentIndex === 0 && dx > 0) ||
+        (currentIndex === tabs.length - 1 && dx < 0)
+      ) {
+        offset = dx * 0.35;
+      }
+      setDragX(offset);
+    }
   };
   const onTouchEnd = (e) => {
     const start = swipeStart.current;
     swipeStart.current = null;
-    if (!start) return;
+    if (!start || start.locked !== 'h') {
+      setIsDragging(false);
+      setDragX(0);
+      return;
+    }
     const t = e.changedTouches[0];
-    if (!t) return;
-    const dx = t.clientX - start.x;
-    const dy = t.clientY - start.y;
-    const dt = Date.now() - start.time;
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.6) return;
-    if (dt > 500) return;
-    if (dx < 0 && currentIndex < tabs.length - 1) {
+    const dx = t ? t.clientX - start.x : 0;
+    const threshold = 70;
+
+    setIsDragging(false);
+    setDragX(0);
+
+    if (dx < -threshold && currentIndex < tabs.length - 1) {
       navigate(`/kunden/${id}/${tabs[currentIndex + 1].to}`);
-    } else if (dx > 0 && currentIndex > 0) {
+    } else if (dx > threshold && currentIndex > 0) {
       navigate(`/kunden/${id}/${tabs[currentIndex - 1].to}`);
     }
   };
@@ -177,8 +214,18 @@ export default function CustomerProfile() {
 
       <div
         className="px-4 py-4"
+        style={{
+          transform: `translate3d(${dragX}px, 0, 0)`,
+          transition: isDragging
+            ? 'none'
+            : 'transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+          willChange: 'transform',
+          touchAction: 'pan-y'
+        }}
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
       >
         <Routes>
           <Route index element={<Navigate to="timeline" replace />} />

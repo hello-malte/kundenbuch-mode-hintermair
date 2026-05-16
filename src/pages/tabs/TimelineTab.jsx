@@ -71,15 +71,20 @@ export default function TimelineTab({ customerId }) {
         </div>
       )}
 
-      <ul className="space-y-4">
-        {normalized.map((e) => (
-          <EntryCard
-            key={e.id}
-            entry={e}
-            hidden={editingEntry?.id === e.id}
-            onEdit={() => setEditingEntry(e)}
-          />
-        ))}
+      <ul>
+        {normalized.flatMap((e, idx) => {
+          const card = (
+            <EntryCard
+              key={e.id}
+              entry={e}
+              hidden={editingEntry?.id === e.id}
+              onEdit={() => setEditingEntry(e)}
+            />
+          );
+          return idx < normalized.length - 1
+            ? [card, <TimelineDivider key={`d-${e.id}`} />]
+            : [card];
+        })}
       </ul>
     </div>
   );
@@ -335,6 +340,16 @@ function ArtikelView({ artikel }) {
           {artikel.notiz}
         </p>
       )}
+    </li>
+  );
+}
+
+function TimelineDivider() {
+  return (
+    <li aria-hidden className="flex items-center justify-center py-6 select-none">
+      <div className="h-px w-16 bg-gradient-to-r from-transparent to-brand/50" />
+      <div className="w-1.5 h-1.5 rounded-full bg-brand mx-2.5 shadow-[0_0_0_3px_rgba(156,14,93,0.12)]" />
+      <div className="h-px w-16 bg-gradient-to-l from-transparent to-brand/50" />
     </li>
   );
 }

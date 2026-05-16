@@ -3,6 +3,8 @@ import BottomTabBar from './components/BottomTabBar';
 import CustomerList from './pages/CustomerList';
 import CustomerProfile from './pages/CustomerProfile';
 import OrderOverview from './pages/OrderOverview';
+import AlterationsOverview from './pages/AlterationsOverview';
+import ReservationsOverview from './pages/ReservationsOverview';
 
 export default function App() {
   return (
@@ -12,6 +14,8 @@ export default function App() {
           <Route path="/" element={<Navigate to="/kunden" replace />} />
           <Route path="/kunden" element={<CustomerList />} />
           <Route path="/kunden/:id/*" element={<CustomerProfile />} />
+          <Route path="/aenderungen" element={<AlterationsOverview />} />
+          <Route path="/reservierungen" element={<ReservationsOverview />} />
           <Route path="/order" element={<OrderOverview />} />
           <Route path="*" element={<Navigate to="/kunden" replace />} />
         </Routes>
