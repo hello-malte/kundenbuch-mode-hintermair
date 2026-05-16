@@ -1,4 +1,13 @@
-import { useParams, useNavigate, NavLink, Routes, Route, Navigate } from 'react-router-dom';
+import { useRef } from 'react';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  NavLink,
+  Routes,
+  Route,
+  Navigate
+} from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, Phone, Navigation } from 'lucide-react';
 import { db, updateCustomer } from '../db/database';
@@ -21,7 +30,42 @@ const tabs = [
 export default function CustomerProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const cid = Number(id);
+
+  const currentSegment = location.pathname.split('/').pop();
+  const currentIndex = Math.max(
+    0,
+    tabs.findIndex((t) => t.to === currentSegment)
+  );
+
+  const swipeStart = useRef(null);
+  const onTouchStart = (e) => {
+    if (e.touches.length > 1) {
+      swipeStart.current = null;
+      return;
+    }
+    const t = e.touches[0];
+    swipeStart.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+  };
+  const onTouchEnd = (e) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const dt = Date.now() - start.time;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dy) > Math.abs(dx) * 0.6) return;
+    if (dt > 500) return;
+    if (dx < 0 && currentIndex < tabs.length - 1) {
+      navigate(`/kunden/${id}/${tabs[currentIndex + 1].to}`);
+    } else if (dx > 0 && currentIndex > 0) {
+      navigate(`/kunden/${id}/${tabs[currentIndex - 1].to}`);
+    }
+  };
   const customer = useLiveQuery(
     async () => (await db.customers.get(cid)) ?? null,
     [cid]
@@ -129,7 +173,11 @@ export default function CustomerProfile() {
         </nav>
       </header>
 
-      <div className="px-4 py-4">
+      <div
+        className="px-4 py-4"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <Routes>
           <Route index element={<Navigate to="timeline" replace />} />
           <Route path="timeline" element={<TimelineTab customerId={cid} />} />
