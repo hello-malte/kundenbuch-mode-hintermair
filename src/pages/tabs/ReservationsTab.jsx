@@ -3,22 +3,22 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Trash2, X, Edit3, Eye, EyeOff, Camera } from 'lucide-react';
 import {
   db,
-  addAlteration,
-  updateAlteration,
-  toggleAlterationDone,
-  deleteAlteration
+  addReservation,
+  updateReservation,
+  toggleReservationDone,
+  deleteReservation
 } from '../../db/database';
 import { resizeMany } from '../../utils/photo';
 import PhotoCarousel from '../../components/PhotoCarousel';
 
-export default function AlterationsTab({ customerId }) {
+export default function ReservationsTab({ customerId }) {
   const [composing, setComposing] = useState(false);
   const [editing, setEditing] = useState(null);
   const [showDone, setShowDone] = useState(false);
 
   const items = useLiveQuery(
     () =>
-      db.alterations
+      db.reservations
         .where('kunden_id')
         .equals(customerId)
         .reverse()
@@ -39,28 +39,28 @@ export default function AlterationsTab({ customerId }) {
           onClick={() => setComposing(true)}
           className="inline-flex items-center gap-2 bg-brand text-white font-medium rounded-full px-4 py-2 active:scale-95 transition-transform duration-200"
         >
-          <Plus size={16} /> Neue Änderung
+          <Plus size={16} /> Neue Reservierung
         </button>
       </div>
 
       {composing && (
-        <AlterationEditor
-          title="Neue Änderung"
+        <ReservationEditor
+          title="Neue Reservierung"
           onCancel={() => setComposing(false)}
           onSave={async ({ beschreibung, fotos }) => {
-            await addAlteration({ customerId, beschreibung, fotos });
+            await addReservation({ customerId, beschreibung, fotos });
             setComposing(false);
           }}
         />
       )}
 
       {editing && (
-        <AlterationEditor
-          title="Änderung bearbeiten"
+        <ReservationEditor
+          title="Reservierung bearbeiten"
           initial={editing}
           onCancel={() => setEditing(null)}
           onSave={async ({ beschreibung, fotos }) => {
-            await updateAlteration(editing.id, { beschreibung, fotos });
+            await updateReservation(editing.id, { beschreibung, fotos });
             setEditing(null);
           }}
         />
@@ -68,9 +68,9 @@ export default function AlterationsTab({ customerId }) {
 
       {all.length === 0 && !composing && (
         <div className="text-muted text-center py-16">
-          Noch keine Änderungen erfasst.
+          Noch keine Reservierungen erfasst.
           <br />
-          Tippe oben auf <span className="text-brand">Neue Änderung</span>.
+          Tippe oben auf <span className="text-brand">Neue Reservierung</span>.
         </div>
       )}
 
@@ -91,7 +91,7 @@ export default function AlterationsTab({ customerId }) {
       {offene.length > 0 && (
         <ul className="space-y-3">
           {offene.map((i) => (
-            <AlterationCard
+            <ReservationCard
               key={i.id}
               item={i}
               hidden={editing?.id === i.id}
@@ -108,7 +108,7 @@ export default function AlterationsTab({ customerId }) {
           </h3>
           <ul className="space-y-3">
             {erledigte.map((i) => (
-              <AlterationCard
+              <ReservationCard
                 key={i.id}
                 item={i}
                 hidden={editing?.id === i.id}
@@ -122,7 +122,7 @@ export default function AlterationsTab({ customerId }) {
   );
 }
 
-function AlterationEditor({ title, initial, onCancel, onSave }) {
+function ReservationEditor({ title, initial, onCancel, onSave }) {
   const [beschreibung, setBeschreibung] = useState(initial?.beschreibung || '');
   const [fotos, setFotos] = useState(initial?.fotos || []);
   const [saving, setSaving] = useState(false);
@@ -132,9 +132,9 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
     const list = Array.from(e.target.files || []);
     e.target.value = '';
     if (!list.length) return;
-    const remaining = 3 - fotos.length;
+    const remaining = 5 - fotos.length;
     const data = await resizeMany(list.slice(0, remaining), 1400);
-    setFotos((p) => [...p, ...data].slice(0, 3));
+    setFotos((p) => [...p, ...data].slice(0, 5));
   };
 
   const hasContent = beschreibung.trim().length > 0 || fotos.length > 0;
@@ -161,7 +161,7 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
       <textarea
         value={beschreibung}
         onChange={(e) => setBeschreibung(e.target.value)}
-        placeholder="z.B. Hose Marke X um 3 cm kürzen, Saum versäubern"
+        placeholder="z.B. Circolo Sakko Größe 50 Marine, neu im Sortiment"
         rows={3}
         className="w-full bg-surface2 rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
       />
@@ -179,13 +179,13 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
             </button>
           </div>
         ))}
-        {fotos.length < 3 && (
+        {fotos.length < 5 && (
           <button
             onClick={() => fileRef.current?.click()}
             className="shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-black/15 flex flex-col items-center justify-center text-muted active:bg-surface2"
           >
             <Camera size={20} />
-            <span className="text-xs mt-1">{fotos.length}/3</span>
+            <span className="text-xs mt-1">{fotos.length}/5</span>
           </button>
         )}
       </div>
@@ -210,13 +210,13 @@ function AlterationEditor({ title, initial, onCancel, onSave }) {
   );
 }
 
-function AlterationCard({ item, hidden, onEdit }) {
+function ReservationCard({ item, hidden, onEdit }) {
   const fotos = item.fotos || [];
   const date = new Date(item.datum);
   if (hidden) return null;
 
   const handleDelete = async () => {
-    if (confirm('Änderung löschen?')) await deleteAlteration(item.id);
+    if (confirm('Reservierung löschen?')) await deleteReservation(item.id);
   };
 
   return (
@@ -225,7 +225,7 @@ function AlterationCard({ item, hidden, onEdit }) {
         <input
           type="checkbox"
           checked={!!item.erledigt}
-          onChange={(e) => toggleAlterationDone(item.id, e.target.checked)}
+          onChange={(e) => toggleReservationDone(item.id, e.target.checked)}
           className="mt-1 w-5 h-5 accent-brand shrink-0"
           aria-label="Erledigt"
         />
@@ -276,7 +276,7 @@ function AlterationCard({ item, hidden, onEdit }) {
       <PhotoCarousel
         fotos={fotos}
         faded={item.erledigt}
-        shareTitle="Änderung"
+        shareTitle="Reservierung"
         shareText={item.beschreibung || ''}
       />
     </li>

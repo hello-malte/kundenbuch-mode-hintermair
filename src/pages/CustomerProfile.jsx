@@ -15,6 +15,7 @@ import { phoneToWa } from '../utils/share';
 import PhotoButton from '../components/PhotoButton';
 import TimelineTab from './tabs/TimelineTab';
 import AlterationsTab from './tabs/AlterationsTab';
+import ReservationsTab from './tabs/ReservationsTab';
 import ProfileTab from './tabs/ProfileTab';
 import NotesTab from './tabs/NotesTab';
 import OrderTab from './tabs/OrderTab';
@@ -22,6 +23,7 @@ import OrderTab from './tabs/OrderTab';
 const tabs = [
   { to: 'timeline', label: 'Einkäufe' },
   { to: 'aenderungen', label: 'Änderungen' },
+  { to: 'reservierungen', label: 'Reservierungen' },
   { to: 'profil', label: 'Profil' },
   { to: 'notizen', label: 'Notizen' },
   { to: 'order', label: 'Order' }
@@ -156,13 +158,13 @@ export default function CustomerProfile() {
           </div>
         </div>
 
-        <nav className="flex border-t border-black/5 px-2 overflow-x-auto">
+        <nav className="flex border-t border-black/5 px-2 overflow-x-auto scroll-touch">
           {tabs.map((t) => (
             <NavLink
               key={t.to}
               to={`/kunden/${id}/${t.to}`}
               className={({ isActive }) =>
-                `flex-1 text-center py-3 text-sm border-b-2 transition-colors duration-200 ${
+                `shrink-0 px-3 py-3 text-sm border-b-2 transition-colors duration-200 ${
                   isActive ? 'border-brand text-brand font-medium' : 'border-transparent text-muted'
                 }`
               }
@@ -182,6 +184,7 @@ export default function CustomerProfile() {
           <Route index element={<Navigate to="timeline" replace />} />
           <Route path="timeline" element={<TimelineTab customerId={cid} />} />
           <Route path="aenderungen" element={<AlterationsTab customerId={cid} />} />
+          <Route path="reservierungen" element={<ReservationsTab customerId={cid} />} />
           <Route path="profil" element={<ProfileTab customer={customer} />} />
           <Route path="notizen" element={<NotesTab customer={customer} />} />
           <Route path="order" element={<OrderTab customerId={cid} />} />
