@@ -37,7 +37,7 @@ export default function OrderTab({ customerId }) {
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
           placeholder="Brand (z.B. CIRCOLO 1901)"
-          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-gold text-base"
+          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
         />
         <input
           value={notiz}
@@ -49,12 +49,12 @@ export default function OrderTab({ customerId }) {
               add();
             }
           }}
-          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-gold text-base"
+          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
         />
         <button
           onClick={add}
           disabled={!brand.trim()}
-          className="w-full bg-gold text-black font-medium rounded-lg py-2.5 inline-flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
+          className="w-full bg-brand text-white font-medium rounded-lg py-2.5 inline-flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
         >
           <Plus size={16} /> Hinzufügen
         </button>
@@ -89,7 +89,7 @@ export default function OrderTab({ customerId }) {
               type="checkbox"
               checked={!!i.erledigt}
               onChange={(e) => toggle(i.id, e.target.checked)}
-              className="mt-1 w-5 h-5 accent-gold shrink-0"
+              className="mt-1 w-5 h-5 accent-brand shrink-0"
             />
             <div className="flex-1 min-w-0">
               <div

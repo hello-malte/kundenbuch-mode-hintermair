@@ -9,7 +9,7 @@
     height: 100%;
   }
   html {
-    background: #FAF7F2;
+    background: #FFFFFF;
   }
   body {
     @apply bg-bg text-ink antialiased font-sans;

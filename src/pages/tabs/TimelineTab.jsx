@@ -21,7 +21,7 @@ export default function TimelineTab({ customerId }) {
       <div className="flex justify-end">
         <button
           onClick={() => setComposing(true)}
-          className="inline-flex items-center gap-2 bg-gold text-black font-medium rounded-full px-4 py-2 active:scale-95 transition-transform duration-200"
+          className="inline-flex items-center gap-2 bg-brand text-white font-medium rounded-full px-4 py-2 active:scale-95 transition-transform duration-200"
         >
           <Camera size={16} /> Neuer Eintrag
         </button>
@@ -38,7 +38,7 @@ export default function TimelineTab({ customerId }) {
         <div className="text-muted text-center py-16">
           Noch keine Einkäufe erfasst.
           <br />
-          Tippe oben auf <span className="text-gold">Neuer Eintrag</span>.
+          Tippe oben auf <span className="text-brand">Neuer Eintrag</span>.
         </div>
       )}
 
@@ -129,13 +129,13 @@ function ComposeEntry({ customerId, onClose }) {
         onChange={(e) => setNotiz(e.target.value)}
         placeholder="Marke, Größe, Artikel, freier Text …"
         rows={3}
-        className="w-full bg-surface2 rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-gold"
+        className="w-full bg-surface2 rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
       />
 
       <button
         onClick={save}
         disabled={saving || (!photos.length && !notiz.trim())}
-        className="w-full bg-gold text-black font-medium py-2.5 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
+        className="w-full bg-brand text-white font-medium py-2.5 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
       >
         {saving ? 'Speichere …' : 'Speichern'}
       </button>
@@ -238,7 +238,7 @@ function EntryCard({ entry }) {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               rows={3}
-              className="w-full bg-surface2 rounded-lg p-2.5 text-sm outline-none resize-none focus:ring-1 focus:ring-gold"
+              className="w-full bg-surface2 rounded-lg p-2.5 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
             />
             <div className="flex gap-2 justify-end">
               <button
@@ -252,7 +252,7 @@ function EntryCard({ entry }) {
               </button>
               <button
                 onClick={saveEdit}
-                className="inline-flex items-center gap-1 bg-gold text-black text-sm font-medium rounded-full px-3 py-1.5"
+                className="inline-flex items-center gap-1 bg-brand text-white text-sm font-medium rounded-full px-3 py-1.5"
               >
                 <Check size={14} /> Speichern
               </button>

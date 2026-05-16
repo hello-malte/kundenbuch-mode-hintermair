@@ -32,7 +32,7 @@ export default function CustomerProfile() {
     return (
       <div className="p-8 text-muted">
         Kunde nicht gefunden.{' '}
-        <button onClick={() => navigate('/kunden')} className="text-gold underline">
+        <button onClick={() => navigate('/kunden')} className="text-brand underline">
           Zurück
         </button>
       </div>
@@ -114,7 +114,7 @@ export default function CustomerProfile() {
               to={`/kunden/${id}/${t.to}`}
               className={({ isActive }) =>
                 `flex-1 text-center py-3 text-sm border-b-2 transition-colors duration-200 ${
-                  isActive ? 'border-gold text-ink font-medium' : 'border-transparent text-muted'
+                  isActive ? 'border-brand text-brand font-medium' : 'border-transparent text-muted'
                 }`
               }
             >

@@ -17,7 +17,7 @@ export default function TagInput({ value = [], onChange, placeholder = 'Hinzufü
       {value.map((t) => (
         <span
           key={t}
-          className="inline-flex items-center gap-1 bg-gold/15 text-gold rounded-full pl-3 pr-1 py-1 text-sm"
+          className="inline-flex items-center gap-1 bg-brand/10 text-brand rounded-full pl-3 pr-1 py-1 text-sm"
         >
           {t}
           <button

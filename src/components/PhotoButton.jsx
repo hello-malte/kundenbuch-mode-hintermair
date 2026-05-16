@@ -33,7 +33,7 @@ export default function PhotoButton({ value, onChange, size = 72 }) {
         ) : (
           <User size={size * 0.5} className="text-muted" strokeWidth={1.5} />
         )}
-        <span className="absolute bottom-0 right-0 bg-gold text-black rounded-full p-1 shadow">
+        <span className="absolute bottom-0 right-0 bg-brand text-white rounded-full p-1 shadow">
           <Camera size={Math.max(12, size * 0.18)} />
         </span>
         {busy && (

@@ -74,7 +74,7 @@ export default function OrderOverview() {
         <button
           onClick={handleShare}
           disabled={!brands.length}
-          className="p-2 text-gold disabled:opacity-30 active:opacity-60"
+          className="p-2 text-brand disabled:opacity-30 active:opacity-60"
           aria-label="Teilen"
         >
           <Share2 size={22} />
@@ -91,7 +91,7 @@ export default function OrderOverview() {
             type="checkbox"
             checked={onlyOpen}
             onChange={(e) => setOnlyOpen(e.target.checked)}
-            className="accent-gold w-4 h-4"
+            className="accent-brand w-4 h-4"
           />
           Nur offene
         </label>
@@ -104,7 +104,7 @@ export default function OrderOverview() {
               Noch keine Order-Einträge.
               <br />
               Lege Brands im Kundenprofil unter{' '}
-              <span className="text-gold">Order</span> an.
+              <span className="text-brand">Order</span> an.
             </>
           ) : (
             <>Alle Einträge sind erledigt. Aktiviere &quot;Nur offene&quot; aus, um sie zu sehen.</>
@@ -114,7 +114,7 @@ export default function OrderOverview() {
         <ul className="px-4 space-y-5 pb-4">
           {brands.map((b) => (
             <li key={b}>
-              <h2 className="text-gold font-semibold tracking-wider text-sm uppercase mb-2 px-1">
+              <h2 className="text-brand font-semibold tracking-wider text-sm uppercase mb-2 px-1">
                 {b}
               </h2>
               <ul className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] divide-y divide-black/5 overflow-hidden">
@@ -142,7 +142,7 @@ export default function OrderOverview() {
                         )}
                       </div>
                       {i.erledigt && (
-                        <span className="text-xs text-gold shrink-0 mt-1">✓</span>
+                        <span className="text-xs text-brand shrink-0 mt-1">✓</span>
                       )}
                     </Link>
                   </li>

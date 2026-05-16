@@ -47,7 +47,7 @@ export default function CustomerList() {
             placeholder="Name oder Telefon"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-full bg-surface text-ink placeholder-muted rounded-xl pl-10 pr-9 py-3 outline-none focus:ring-1 focus:ring-gold ring-1 ring-black/5"
+            className="w-full bg-surface text-ink placeholder-muted rounded-xl pl-10 pr-9 py-3 outline-none focus:ring-1 focus:ring-brand ring-1 ring-black/5"
           />
           {q && (
             <button
@@ -106,7 +106,7 @@ export default function CustomerList() {
 
       <button
         onClick={handleNew}
-        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-ink text-white flex items-center justify-center shadow-xl shadow-black/20 active:scale-95 transition-transform duration-200"
+        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-brand text-white flex items-center justify-center shadow-xl shadow-brand/30 active:scale-95 transition-transform duration-200"
         style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
         aria-label="Neuer Kunde"
       >

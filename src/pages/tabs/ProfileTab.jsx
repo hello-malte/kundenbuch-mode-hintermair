@@ -46,7 +46,7 @@ export default function ProfileTab({ customer }) {
             inputMode={f.inputMode}
             value={form[f.key] || ''}
             onChange={(e) => set(f.key, e.target.value)}
-            className="w-full bg-surface rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-gold text-base"
+            className="w-full bg-surface rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
             style={{ colorScheme: 'dark' }}
           />
         </label>
@@ -55,7 +55,7 @@ export default function ProfileTab({ customer }) {
       <button
         onClick={save}
         disabled={!valid}
-        className="w-full bg-gold text-black font-medium py-3 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200 mt-2"
+        className="w-full bg-brand text-white font-medium py-3 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200 mt-2"
       >
         {saved ? 'Gespeichert ✓' : 'Speichern'}
       </button>

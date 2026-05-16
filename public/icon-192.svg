@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <rect width="192" height="192" rx="42" fill="#0a0a0a"/>
-  <rect x="44" y="36" width="104" height="120" rx="8" fill="#141414" stroke="#C9A96E" stroke-width="3"/>
-  <line x1="56" y1="68" x2="136" y2="68" stroke="#C9A96E" stroke-width="3" stroke-linecap="round"/>
-  <line x1="56" y1="92" x2="136" y2="92" stroke="#C9A96E" stroke-width="3" stroke-linecap="round"/>
-  <line x1="56" y1="116" x2="116" y2="116" stroke="#C9A96E" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="96" cy="36" r="6" fill="#C9A96E"/>
+  <rect width="192" height="192" rx="42" fill="#9C0E5D"/>
+  <rect x="44" y="36" width="104" height="120" rx="8" fill="#FFFFFF"/>
+  <line x1="56" y1="68" x2="136" y2="68" stroke="#9C0E5D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="56" y1="92" x2="136" y2="92" stroke="#9C0E5D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="56" y1="116" x2="116" y2="116" stroke="#9C0E5D" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="96" cy="36" r="6" fill="#FFFFFF"/>
 </svg>

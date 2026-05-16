@@ -18,7 +18,7 @@ export default function BottomTabBar() {
               key={to}
               to={to}
               className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors duration-200 ${
-                active ? 'text-ink' : 'text-muted'
+                active ? 'text-brand' : 'text-muted'
               }`}
             >
               <Icon size={24} strokeWidth={active ? 2.2 : 1.7} />
