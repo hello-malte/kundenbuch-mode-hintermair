@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Share2, Search, X } from 'lucide-react';
 import { db } from '../db/database';
 import { shareText } from '../utils/share';
+import Logo from '../components/Logo';
 
 export default function OrderOverview() {
   const [onlyOpen, setOnlyOpen] = useState(true);
@@ -76,8 +77,8 @@ export default function OrderOverview() {
   return (
     <div className="safe-top">
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Order</h1>
+        <div className="flex items-center justify-between mb-3 min-h-[40px]">
+          <Logo />
           <button
             onClick={handleShare}
             disabled={!brands.length}

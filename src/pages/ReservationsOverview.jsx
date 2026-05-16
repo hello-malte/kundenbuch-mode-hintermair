@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Bookmark, Search, X } from 'lucide-react';
 import { db, toggleReservationDone } from '../db/database';
 import { OverviewRow } from './AlterationsOverview';
+import Logo from '../components/Logo';
 
 export default function ReservationsOverview() {
   const [onlyOpen, setOnlyOpen] = useState(true);
@@ -42,8 +43,8 @@ export default function ReservationsOverview() {
   return (
     <div className="safe-top">
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Reservierungen</h1>
+        <div className="flex items-center justify-between mb-3 min-h-[40px]">
+          <Logo />
           <Bookmark size={22} className="text-brand" />
         </div>
         <div className="relative">
