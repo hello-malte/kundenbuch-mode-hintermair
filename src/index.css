@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    background: #0a0a0a;
+  }
+  body {
+    @apply bg-bg text-white antialiased font-sans;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overscroll-behavior-y: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  input,
+  textarea,
+  [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Hide native search clear */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pb-tabbar {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+  }
+}
