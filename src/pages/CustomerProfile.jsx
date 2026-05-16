@@ -60,7 +60,7 @@ export default function CustomerProfile() {
 
   return (
     <div className="safe-top">
-      <header className="sticky top-0 bg-bg/95 backdrop-blur z-30 border-b border-white/5">
+      <header className="sticky top-0 bg-bg/95 backdrop-blur z-30 border-b border-black/5">
         <div className="flex items-center justify-between px-2 pt-1">
           <button
             onClick={() => navigate('/kunden')}
@@ -87,7 +87,7 @@ export default function CustomerProfile() {
               {phoneHref && (
                 <a
                   href={phoneHref}
-                  className="inline-flex items-center gap-1.5 bg-surface text-white text-sm rounded-full px-3 py-1.5 active:bg-surface2 transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-ink text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
                 >
                   <Phone size={14} /> Anrufen
                 </a>
@@ -97,7 +97,7 @@ export default function CustomerProfile() {
                   href={waHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-whatsapp text-black font-medium text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-1.5 bg-whatsapp text-white font-medium text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
                   aria-label="WhatsApp öffnen"
                 >
                   <WhatsAppIcon /> WhatsApp
@@ -107,14 +107,14 @@ export default function CustomerProfile() {
           </div>
         </div>
 
-        <nav className="flex border-t border-white/5 px-2 overflow-x-auto">
+        <nav className="flex border-t border-black/5 px-2 overflow-x-auto">
           {tabs.map((t) => (
             <NavLink
               key={t.to}
               to={`/kunden/${id}/${t.to}`}
               className={({ isActive }) =>
                 `flex-1 text-center py-3 text-sm border-b-2 transition-colors duration-200 ${
-                  isActive ? 'border-gold text-white' : 'border-transparent text-muted'
+                  isActive ? 'border-gold text-ink font-medium' : 'border-transparent text-muted'
                 }`
               }
             >

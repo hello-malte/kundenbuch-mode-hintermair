@@ -17,7 +17,7 @@ export function resizeImage(file, maxSize = 1400, quality = 0.82) {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#0a0a0a';
+        ctx.fillStyle = '#FAF7F2';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));

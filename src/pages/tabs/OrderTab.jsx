@@ -32,7 +32,7 @@ export default function OrderTab({ customerId }) {
 
   return (
     <div className="space-y-4 pb-4">
-      <div className="bg-surface rounded-2xl p-3 space-y-2">
+      <div className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-3 space-y-2">
         <input
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
@@ -83,7 +83,7 @@ export default function OrderTab({ customerId }) {
         {visible.map((i) => (
           <li
             key={i.id}
-            className="bg-surface rounded-xl p-3 flex items-start gap-3"
+            className="bg-surface rounded-xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-3 flex items-start gap-3"
           >
             <input
               type="checkbox"

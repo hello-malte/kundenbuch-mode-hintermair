@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Search, Plus, User, X } from 'lucide-react';
 import { db, createCustomer } from '../db/database';
+import Logo from '../components/Logo';
 
 export default function CustomerList() {
   const [q, setQ] = useState('');
@@ -33,8 +34,8 @@ export default function CustomerList() {
   return (
     <div className="safe-top">
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
-        <div className="flex items-baseline justify-between mb-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Kundenbuch</h1>
+        <div className="flex items-center justify-between mb-3 min-h-[40px]">
+          <Logo />
           <span className="text-xs text-muted">
             {customers ? `${customers.length} Kunde${customers.length === 1 ? '' : 'n'}` : ''}
           </span>
@@ -46,7 +47,7 @@ export default function CustomerList() {
             placeholder="Name oder Telefon"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-full bg-surface text-white placeholder-muted rounded-xl pl-10 pr-9 py-3 outline-none focus:ring-1 focus:ring-gold"
+            className="w-full bg-surface text-ink placeholder-muted rounded-xl pl-10 pr-9 py-3 outline-none focus:ring-1 focus:ring-gold ring-1 ring-black/5"
           />
           {q && (
             <button
@@ -75,7 +76,7 @@ export default function CustomerList() {
           <li key={c.id}>
             <Link
               to={`/kunden/${c.id}`}
-              className="flex items-center gap-3 bg-surface rounded-2xl p-3 active:bg-surface2 transition-colors duration-200"
+              className="flex items-center gap-3 bg-surface rounded-2xl p-3 ring-1 ring-black/5 shadow-sm shadow-black/[0.02] active:bg-surface2 transition-colors duration-200"
             >
               {c.foto ? (
                 <img
@@ -105,7 +106,7 @@ export default function CustomerList() {
 
       <button
         onClick={handleNew}
-        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-gold text-black flex items-center justify-center shadow-xl active:scale-95 transition-transform duration-200"
+        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-ink text-white flex items-center justify-center shadow-xl shadow-black/20 active:scale-95 transition-transform duration-200"
         style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
         aria-label="Neuer Kunde"
       >

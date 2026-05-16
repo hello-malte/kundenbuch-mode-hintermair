@@ -24,7 +24,7 @@ export default function PhotoButton({ value, onChange, size = 72 }) {
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        className="relative rounded-full overflow-hidden bg-surface flex items-center justify-center shrink-0 active:scale-95 transition-transform duration-200"
+        className="relative rounded-full overflow-hidden bg-surface ring-1 ring-black/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform duration-200"
         style={{ width: size, height: size }}
         aria-label="Profilfoto ändern"
       >
@@ -37,7 +37,7 @@ export default function PhotoButton({ value, onChange, size = 72 }) {
           <Camera size={Math.max(12, size * 0.18)} />
         </span>
         {busy && (
-          <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-xs">…</span>
+          <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-xs text-white">…</span>
         )}
       </button>
       <input

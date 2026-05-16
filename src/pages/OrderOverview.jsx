@@ -117,7 +117,7 @@ export default function OrderOverview() {
               <h2 className="text-gold font-semibold tracking-wider text-sm uppercase mb-2 px-1">
                 {b}
               </h2>
-              <ul className="bg-surface rounded-2xl divide-y divide-white/5 overflow-hidden">
+              <ul className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] divide-y divide-black/5 overflow-hidden">
                 {byBrand[b].map((i) => (
                   <li key={i.id}>
                     <Link
@@ -154,7 +154,7 @@ export default function OrderOverview() {
       )}
 
       {toast && (
-        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 bg-surface text-white text-sm rounded-full px-4 py-2 shadow-lg z-50">
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 bg-ink text-white text-sm rounded-full px-4 py-2 shadow-lg z-50">
           {toast}
         </div>
       )}

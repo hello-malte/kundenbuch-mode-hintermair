@@ -4,11 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0a0a0a',
-        surface: '#141414',
-        surface2: '#1c1c1c',
-        gold: '#C9A96E',
-        muted: '#8a8a8a',
+        bg: '#FAF7F2',
+        surface: '#FFFFFF',
+        surface2: '#F2EDE3',
+        gold: '#B8946A',
+        ink: '#111111',
+        muted: '#6E6A64',
         whatsapp: '#25D366'
       },
       fontFamily: {

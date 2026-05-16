@@ -9,10 +9,10 @@
     height: 100%;
   }
   html {
-    background: #0a0a0a;
+    background: #FAF7F2;
   }
   body {
-    @apply bg-bg text-white antialiased font-sans;
+    @apply bg-bg text-ink antialiased font-sans;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     overscroll-behavior-y: none;

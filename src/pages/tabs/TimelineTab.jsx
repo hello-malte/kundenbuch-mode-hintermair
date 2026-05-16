@@ -82,7 +82,7 @@ function ComposeEntry({ customerId, onClose }) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl p-4 space-y-3">
+    <div className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Neuer Eintrag</h3>
         <button onClick={onClose} className="p-1 text-muted" aria-label="Abbrechen">
@@ -96,7 +96,7 @@ function ComposeEntry({ customerId, onClose }) {
             <img src={p} alt="" className="w-24 h-24 rounded-lg object-cover" />
             <button
               onClick={() => setPhotos(photos.filter((_, j) => j !== i))}
-              className="absolute -top-1.5 -right-1.5 bg-black/80 rounded-full p-1"
+              className="absolute -top-1.5 -right-1.5 bg-ink rounded-full p-1 text-white"
               aria-label="Foto entfernen"
             >
               <X size={12} />
@@ -106,7 +106,7 @@ function ComposeEntry({ customerId, onClose }) {
         {photos.length < 5 && (
           <button
             onClick={() => fileRef.current?.click()}
-            className="shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-muted active:bg-surface2"
+            className="shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-black/15 flex flex-col items-center justify-center text-muted active:bg-surface2"
           >
             <Plus size={20} />
             <span className="text-xs mt-1">{photos.length}/5</span>
@@ -161,7 +161,7 @@ function EntryCard({ entry }) {
   };
 
   return (
-    <li className="bg-surface rounded-2xl overflow-hidden">
+    <li className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 text-xs text-muted">
         <span>
           {date.toLocaleDateString('de-DE', {

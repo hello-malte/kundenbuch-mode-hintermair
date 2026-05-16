@@ -9,7 +9,7 @@ const tabs = [
 export default function BottomTabBar() {
   const { pathname } = useLocation();
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-surface/95 backdrop-blur border-t border-white/5 safe-bottom z-40">
+    <nav className="fixed bottom-0 inset-x-0 bg-surface/95 backdrop-blur border-t border-black/5 safe-bottom z-40">
       <div className="flex h-16">
         {tabs.map(({ to, label, icon: Icon, match }) => {
           const active = pathname.startsWith(match);
@@ -18,7 +18,7 @@ export default function BottomTabBar() {
               key={to}
               to={to}
               className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors duration-200 ${
-                active ? 'text-gold' : 'text-muted'
+                active ? 'text-ink' : 'text-muted'
               }`}
             >
               <Icon size={24} strokeWidth={active ? 2.2 : 1.7} />
