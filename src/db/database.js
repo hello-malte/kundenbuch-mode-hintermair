@@ -85,3 +85,51 @@ export async function updateOrderItem(id, patch) {
 export async function deleteOrderItem(id) {
   return db.order_items.delete(id);
 }
+
+export const BACKUP_VERSION = 1;
+
+export async function exportAllData() {
+  const [customers, timeline_entries, order_items] = await Promise.all([
+    db.customers.toArray(),
+    db.timeline_entries.toArray(),
+    db.order_items.toArray()
+  ]);
+  return {
+    app: 'kundenbuch',
+    version: BACKUP_VERSION,
+    exported_at: new Date().toISOString(),
+    customers,
+    timeline_entries,
+    order_items
+  };
+}
+
+export async function importAllData(data) {
+  if (!data || data.app !== 'kundenbuch' || data.version !== BACKUP_VERSION) {
+    throw new Error('Datei ist kein gültiges Kundenbuch-Backup.');
+  }
+  await db.transaction(
+    'rw',
+    db.customers,
+    db.timeline_entries,
+    db.order_items,
+    async () => {
+      await db.timeline_entries.clear();
+      await db.order_items.clear();
+      await db.customers.clear();
+      if (data.customers?.length) await db.customers.bulkAdd(data.customers);
+      if (data.timeline_entries?.length)
+        await db.timeline_entries.bulkAdd(data.timeline_entries);
+      if (data.order_items?.length) await db.order_items.bulkAdd(data.order_items);
+    }
+  );
+}
+
+export async function getStats() {
+  const [customers, timeline_entries, order_items] = await Promise.all([
+    db.customers.count(),
+    db.timeline_entries.count(),
+    db.order_items.count()
+  ]);
+  return { customers, timeline_entries, order_items };
+}

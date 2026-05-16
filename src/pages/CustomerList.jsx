@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Search, Plus, User, X } from 'lucide-react';
+import { Search, Plus, User, X, Settings } from 'lucide-react';
 import { db, createCustomer } from '../db/database';
 import Logo from '../components/Logo';
+import BackupMenu from '../components/BackupMenu';
 
 export default function CustomerList() {
   const [q, setQ] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const customers = useLiveQuery(
@@ -36,9 +38,18 @@ export default function CustomerList() {
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
         <div className="flex items-center justify-between mb-3 min-h-[40px]">
           <Logo />
-          <span className="text-xs text-muted">
-            {customers ? `${customers.length} Kunde${customers.length === 1 ? '' : 'n'}` : ''}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted">
+              {customers ? `${customers.length} Kunde${customers.length === 1 ? '' : 'n'}` : ''}
+            </span>
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="p-2 -mr-1 text-muted active:text-ink"
+              aria-label="Daten verwalten"
+            >
+              <Settings size={20} />
+            </button>
+          </div>
         </div>
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
@@ -112,6 +123,8 @@ export default function CustomerList() {
       >
         <Plus size={26} strokeWidth={2.4} />
       </button>
+
+      <BackupMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
 }
