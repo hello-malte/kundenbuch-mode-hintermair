@@ -47,8 +47,8 @@ export default function AlterationsTab({ customerId }) {
         <AlterationEditor
           title="Neue Änderung"
           onCancel={() => setComposing(false)}
-          onSave={async ({ beschreibung, fotos }) => {
-            await addAlteration({ customerId, beschreibung, fotos });
+          onSave={async ({ beschreibung, fotos, fertig_bis }) => {
+            await addAlteration({ customerId, beschreibung, fotos, fertig_bis });
             setComposing(false);
           }}
         />
@@ -59,8 +59,8 @@ export default function AlterationsTab({ customerId }) {
           title="Änderung bearbeiten"
           initial={editing}
           onCancel={() => setEditing(null)}
-          onSave={async ({ beschreibung, fotos }) => {
-            await updateAlteration(editing.id, { beschreibung, fotos });
+          onSave={async ({ beschreibung, fotos, fertig_bis }) => {
+            await updateAlteration(editing.id, { beschreibung, fotos, fertig_bis });
             setEditing(null);
           }}
         />

@@ -33,6 +33,16 @@ export default function AlterationsOverview() {
     });
   }, [data, onlyOpen, q]);
 
+  const dueTomorrow = useMemo(() => {
+    if (!data) return [];
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const tomorrowStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return data.filter(
+      (i) => !i.erledigt && i.fertig_bis === tomorrowStr
+    );
+  }, [data]);
+
   if (data === undefined) {
     return <div className="p-8 text-muted">Lade …</div>;
   }
@@ -67,7 +77,38 @@ export default function AlterationsOverview() {
         </div>
       </header>
 
-      <div className="px-4 flex items-center justify-between mb-3 mt-1">
+      {dueTomorrow.length > 0 && (
+        <div className="px-4 pt-3">
+          <div className="bg-brand text-white rounded-2xl p-3 flex items-start gap-3">
+            <Scissors size={22} className="shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <div className="text-xs uppercase tracking-wider font-medium opacity-90">
+                Morgen fertig
+              </div>
+              <div className="text-sm mt-0.5 leading-relaxed">
+                {dueTomorrow.map((a, i) => {
+                  const c = a.customer;
+                  const name =
+                    `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Unbenannt';
+                  return (
+                    <span key={a.id}>
+                      {i > 0 && ', '}
+                      <Link
+                        to={`/kunden/${c.id}/aenderungen`}
+                        className="font-medium underline-offset-2"
+                      >
+                        {name}
+                      </Link>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="px-4 flex items-center justify-between mb-3 mt-3">
         <span className="text-sm text-muted">
           {totalOpen} offen · {data.length} insgesamt
         </span>
