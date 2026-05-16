@@ -46,8 +46,8 @@ export default function ProfileTab({ customer }) {
             inputMode={f.inputMode}
             value={form[f.key] || ''}
             onChange={(e) => set(f.key, e.target.value)}
-            className="w-full bg-surface rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
-            style={{ colorScheme: 'dark' }}
+            className="w-full bg-surface rounded-lg px-3 py-2.5 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-base text-left"
+            style={{ colorScheme: 'light' }}
           />
         </label>
       ))}

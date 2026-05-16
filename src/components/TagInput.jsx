@@ -13,7 +13,7 @@ export default function TagInput({ value = [], onChange, placeholder = 'Hinzufü
   const remove = (t) => onChange(value.filter((x) => x !== t));
 
   return (
-    <div className="bg-surface rounded-lg p-2 flex flex-wrap gap-1.5 min-h-[44px]">
+    <div className="bg-surface rounded-lg p-2 flex flex-wrap gap-1.5 min-h-[44px] ring-1 ring-brand/40">
       {value.map((t) => (
         <span
           key={t}

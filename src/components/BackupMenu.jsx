@@ -119,8 +119,8 @@ export default function BackupMenu({ open, onClose }) {
                     {stats.customers} Kunde{stats.customers === 1 ? '' : 'n'}
                   </div>
                   <div className="text-muted text-xs mt-0.5">
-                    {stats.timeline_entries} Timeline-Eintr
-                    {stats.timeline_entries === 1 ? 'ag' : 'äge'} ·{' '}
+                    {stats.timeline_entries} Einkäufe ·{' '}
+                    {stats.alterations ?? 0} Änderungen ·{' '}
                     {stats.order_items} Order-Eintr
                     {stats.order_items === 1 ? 'ag' : 'äge'}
                   </div>

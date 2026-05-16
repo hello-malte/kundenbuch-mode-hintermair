@@ -58,7 +58,7 @@ export default function NotesTab({ customer }) {
           onChange={(e) => set('notizen_freitext', e.target.value)}
           rows={5}
           placeholder="Beliebige Notizen zum Kunden …"
-          className="w-full bg-surface rounded-lg p-3 outline-none resize-y focus:ring-1 focus:ring-brand text-base"
+          className="w-full bg-surface rounded-lg p-3 outline-none resize-y ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-base"
         />
       </label>
 
@@ -73,7 +73,7 @@ export default function NotesTab({ customer }) {
             <input
               value={form[k] || ''}
               onChange={(e) => set(k, e.target.value)}
-              className="w-full bg-surface rounded-lg px-2 py-2 outline-none text-center focus:ring-1 focus:ring-brand text-base"
+              className="w-full bg-surface rounded-lg px-3 py-2 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-base"
             />
           </label>
         ))}
@@ -99,7 +99,7 @@ export default function NotesTab({ customer }) {
             value={form[k] || ''}
             onChange={(e) => set(k, e.target.value)}
             rows={2}
-            className="w-full bg-surface rounded-lg p-3 outline-none resize-none focus:ring-1 focus:ring-brand text-base"
+            className="w-full bg-surface rounded-lg p-3 outline-none resize-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-base"
           />
         </label>
       ))}

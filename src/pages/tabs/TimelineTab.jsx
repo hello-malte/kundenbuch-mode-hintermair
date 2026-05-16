@@ -1,11 +1,21 @@
 import { useState, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Camera, Trash2, X, Plus, Edit3, Check } from 'lucide-react';
-import { db, addTimelineEntry, deleteTimelineEntry } from '../../db/database';
+import { Camera, Trash2, X, Plus, Edit3 } from 'lucide-react';
+import {
+  db,
+  addTimelineEntry,
+  updateTimelineEntry,
+  deleteTimelineEntry,
+  normalizeTimelineEntry
+} from '../../db/database';
 import { resizeMany } from '../../utils/photo';
+
+const emptyArtikel = () => ({ fotos: [], notiz: '' });
 
 export default function TimelineTab({ customerId }) {
   const [composing, setComposing] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+
   const entries = useLiveQuery(
     () =>
       db.timeline_entries
@@ -16,6 +26,8 @@ export default function TimelineTab({ customerId }) {
     [customerId]
   );
 
+  const normalized = (entries || []).map(normalizeTimelineEntry);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -23,14 +35,31 @@ export default function TimelineTab({ customerId }) {
           onClick={() => setComposing(true)}
           className="inline-flex items-center gap-2 bg-brand text-white font-medium rounded-full px-4 py-2 active:scale-95 transition-transform duration-200"
         >
-          <Camera size={16} /> Neuer Eintrag
+          <Camera size={16} /> Neuer Einkauf
         </button>
       </div>
 
       {composing && (
-        <ComposeEntry
-          customerId={customerId}
-          onClose={() => setComposing(false)}
+        <EntryEditor
+          initialArtikel={[emptyArtikel()]}
+          title="Neuer Einkauf"
+          onCancel={() => setComposing(false)}
+          onSave={async (artikel) => {
+            await addTimelineEntry({ customerId, artikel });
+            setComposing(false);
+          }}
+        />
+      )}
+
+      {editingEntry && (
+        <EntryEditor
+          initialArtikel={editingEntry.artikel}
+          title="Einkauf bearbeiten"
+          onCancel={() => setEditingEntry(null)}
+          onSave={async (artikel) => {
+            await updateTimelineEntry(editingEntry.id, { artikel });
+            setEditingEntry(null);
+          }}
         />
       )}
 
@@ -38,64 +67,130 @@ export default function TimelineTab({ customerId }) {
         <div className="text-muted text-center py-16">
           Noch keine Einkäufe erfasst.
           <br />
-          Tippe oben auf <span className="text-brand">Neuer Eintrag</span>.
+          Tippe oben auf <span className="text-brand">Neuer Einkauf</span>.
         </div>
       )}
 
       <ul className="space-y-4">
-        {(entries || []).map((e) => (
-          <EntryCard key={e.id} entry={e} />
+        {normalized.map((e) => (
+          <EntryCard
+            key={e.id}
+            entry={e}
+            hidden={editingEntry?.id === e.id}
+            onEdit={() => setEditingEntry(e)}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function ComposeEntry({ customerId, onClose }) {
-  const [photos, setPhotos] = useState([]);
-  const [notiz, setNotiz] = useState('');
+function EntryEditor({ initialArtikel, title, onCancel, onSave }) {
+  const [artikel, setArtikel] = useState(() =>
+    initialArtikel?.length ? initialArtikel.map((a) => ({ ...a })) : [emptyArtikel()]
+  );
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef(null);
 
-  const handleFiles = async (e) => {
-    const list = Array.from(e.target.files || []);
-    e.target.value = '';
-    if (!list.length) return;
-    const remaining = 5 - photos.length;
-    const data = await resizeMany(list.slice(0, remaining), 1400);
-    setPhotos((p) => [...p, ...data].slice(0, 5));
-  };
+  const update = (idx, patch) =>
+    setArtikel((arr) => arr.map((a, i) => (i === idx ? { ...a, ...patch } : a)));
+
+  const remove = (idx) =>
+    setArtikel((arr) => (arr.length > 1 ? arr.filter((_, i) => i !== idx) : arr));
+
+  const add = () => setArtikel((arr) => [...arr, emptyArtikel()]);
+
+  const hasContent = artikel.some(
+    (a) => a.fotos.length > 0 || a.notiz.trim().length > 0
+  );
 
   const save = async () => {
-    if (!photos.length && !notiz.trim()) return;
+    if (!hasContent || saving) return;
     setSaving(true);
     try {
-      await addTimelineEntry({
-        customerId,
-        fotos: photos,
-        notiz: notiz.trim()
-      });
-      onClose();
+      await onSave(artikel);
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-4 space-y-3">
+    <div className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">Neuer Eintrag</h3>
-        <button onClick={onClose} className="p-1 text-muted" aria-label="Abbrechen">
+        <h3 className="font-medium">{title}</h3>
+        <button
+          onClick={onCancel}
+          className="p-1 text-muted"
+          aria-label="Abbrechen"
+        >
           <X size={18} />
         </button>
       </div>
 
+      <ul className="space-y-4">
+        {artikel.map((a, idx) => (
+          <li key={idx} className="bg-surface2 rounded-xl p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted uppercase tracking-wider font-medium">
+                Artikel {idx + 1}
+              </span>
+              {artikel.length > 1 && (
+                <button
+                  onClick={() => remove(idx)}
+                  className="p-1 text-muted active:text-red-600"
+                  aria-label="Artikel entfernen"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
+            <ArtikelEditor
+              artikel={a}
+              onChange={(patch) => update(idx, patch)}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <button
+        onClick={add}
+        className="w-full inline-flex items-center justify-center gap-2 bg-surface2 text-ink font-medium py-2.5 rounded-lg active:opacity-80 transition-opacity"
+      >
+        <Plus size={16} /> Weiteren Artikel hinzufügen
+      </button>
+
+      <button
+        onClick={save}
+        disabled={saving || !hasContent}
+        className="w-full bg-brand text-white font-medium py-3 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
+      >
+        {saving ? 'Speichere …' : 'Speichern'}
+      </button>
+    </div>
+  );
+}
+
+function ArtikelEditor({ artikel, onChange }) {
+  const fileRef = useRef(null);
+
+  const handleFiles = async (e) => {
+    const list = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!list.length) return;
+    const remaining = 5 - artikel.fotos.length;
+    const data = await resizeMany(list.slice(0, remaining), 1400);
+    onChange({ fotos: [...artikel.fotos, ...data].slice(0, 5) });
+  };
+
+  return (
+    <div className="space-y-3">
       <div className="flex gap-2 overflow-x-auto scroll-touch -mx-1 px-1">
-        {photos.map((p, i) => (
+        {artikel.fotos.map((p, i) => (
           <div key={i} className="relative shrink-0">
             <img src={p} alt="" className="w-24 h-24 rounded-lg object-cover" />
             <button
-              onClick={() => setPhotos(photos.filter((_, j) => j !== i))}
+              onClick={() =>
+                onChange({ fotos: artikel.fotos.filter((_, j) => j !== i) })
+              }
               className="absolute -top-1.5 -right-1.5 bg-ink rounded-full p-1 text-white"
               aria-label="Foto entfernen"
             >
@@ -103,13 +198,13 @@ function ComposeEntry({ customerId, onClose }) {
             </button>
           </div>
         ))}
-        {photos.length < 5 && (
+        {artikel.fotos.length < 5 && (
           <button
             onClick={() => fileRef.current?.click()}
-            className="shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-black/15 flex flex-col items-center justify-center text-muted active:bg-surface2"
+            className="shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-black/15 flex flex-col items-center justify-center text-muted active:bg-surface"
           >
             <Plus size={20} />
-            <span className="text-xs mt-1">{photos.length}/5</span>
+            <span className="text-xs mt-1">{artikel.fotos.length}/5</span>
           </button>
         )}
       </div>
@@ -119,45 +214,28 @@ function ComposeEntry({ customerId, onClose }) {
         type="file"
         accept="image/*"
         multiple
-        capture="environment"
         onChange={handleFiles}
         className="hidden"
       />
 
       <textarea
-        value={notiz}
-        onChange={(e) => setNotiz(e.target.value)}
+        value={artikel.notiz}
+        onChange={(e) => onChange({ notiz: e.target.value })}
         placeholder="Marke, Größe, Artikel, freier Text …"
-        rows={3}
-        className="w-full bg-surface2 rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
+        rows={2}
+        className="w-full bg-surface rounded-lg p-3 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
       />
-
-      <button
-        onClick={save}
-        disabled={saving || (!photos.length && !notiz.trim())}
-        className="w-full bg-brand text-white font-medium py-2.5 rounded-lg disabled:opacity-40 active:scale-[0.98] transition-transform duration-200"
-      >
-        {saving ? 'Speichere …' : 'Speichern'}
-      </button>
     </div>
   );
 }
 
-function EntryCard({ entry }) {
-  const [idx, setIdx] = useState(0);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(entry.notiz || '');
-
+function EntryCard({ entry, hidden, onEdit }) {
+  if (hidden) return null;
   const date = new Date(entry.datum);
-  const fotos = entry.fotos || [];
+  const artikel = entry.artikel || [];
 
   const handleDelete = async () => {
-    if (confirm('Eintrag löschen?')) await deleteTimelineEntry(entry.id);
-  };
-
-  const saveEdit = async () => {
-    await db.timeline_entries.update(entry.id, { notiz: draft.trim() });
-    setEditing(false);
+    if (confirm('Einkauf löschen?')) await deleteTimelineEntry(entry.id);
   };
 
   return (
@@ -174,10 +252,15 @@ function EntryCard({ entry }) {
             hour: '2-digit',
             minute: '2-digit'
           })}
+          {artikel.length > 1 && (
+            <span className="ml-2 text-brand">
+              · {artikel.length} Artikel
+            </span>
+          )}
         </span>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setEditing((v) => !v)}
+            onClick={onEdit}
             className="p-1.5 active:opacity-60"
             aria-label="Bearbeiten"
           >
@@ -193,6 +276,21 @@ function EntryCard({ entry }) {
         </div>
       </div>
 
+      <ul className="divide-y divide-black/5">
+        {artikel.map((a, idx) => (
+          <ArtikelView key={idx} artikel={a} />
+        ))}
+      </ul>
+    </li>
+  );
+}
+
+function ArtikelView({ artikel }) {
+  const [idx, setIdx] = useState(0);
+  const fotos = artikel.fotos || [];
+
+  return (
+    <li>
       {fotos.length > 0 && (
         <div className="relative aspect-square bg-black select-none">
           <img
@@ -231,39 +329,11 @@ function EntryCard({ entry }) {
         </div>
       )}
 
-      <div className="px-4 py-3">
-        {editing ? (
-          <div className="space-y-2">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={3}
-              className="w-full bg-surface2 rounded-lg p-2.5 text-sm outline-none resize-none focus:ring-1 focus:ring-brand"
-            />
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => {
-                  setDraft(entry.notiz || '');
-                  setEditing(false);
-                }}
-                className="px-3 py-1.5 text-sm text-muted"
-              >
-                Abbrechen
-              </button>
-              <button
-                onClick={saveEdit}
-                className="inline-flex items-center gap-1 bg-brand text-white text-sm font-medium rounded-full px-3 py-1.5"
-              >
-                <Check size={14} /> Speichern
-              </button>
-            </div>
-          </div>
-        ) : entry.notiz ? (
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{entry.notiz}</p>
-        ) : (
-          <p className="text-sm text-muted italic">Keine Notiz</p>
-        )}
-      </div>
+      {artikel.notiz && (
+        <p className="px-4 py-3 text-sm whitespace-pre-wrap leading-relaxed">
+          {artikel.notiz}
+        </p>
+      )}
     </li>
   );
 }

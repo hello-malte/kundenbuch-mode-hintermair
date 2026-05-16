@@ -1,16 +1,18 @@
 import { useParams, useNavigate, NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, Phone, Trash2 } from 'lucide-react';
-import { db, deleteCustomer, updateCustomer } from '../db/database';
+import { ArrowLeft, Phone, Navigation } from 'lucide-react';
+import { db, updateCustomer } from '../db/database';
 import { phoneToWa } from '../utils/share';
 import PhotoButton from '../components/PhotoButton';
 import TimelineTab from './tabs/TimelineTab';
+import AlterationsTab from './tabs/AlterationsTab';
 import ProfileTab from './tabs/ProfileTab';
 import NotesTab from './tabs/NotesTab';
 import OrderTab from './tabs/OrderTab';
 
 const tabs = [
-  { to: 'timeline', label: 'Timeline' },
+  { to: 'timeline', label: 'Einkäufe' },
+  { to: 'aenderungen', label: 'Änderungen' },
   { to: 'profil', label: 'Profil' },
   { to: 'notizen', label: 'Notizen' },
   { to: 'order', label: 'Order' }
@@ -43,13 +45,12 @@ export default function CustomerProfile() {
   const phoneHref = customer.telefon ? `tel:${customer.telefon.replace(/\s/g, '')}` : null;
   const waHref = waNumber ? `https://wa.me/${waNumber}` : null;
 
-  const handleDelete = async () => {
-    const name = `${customer.vorname} ${customer.nachname}`.trim() || 'Kunde';
-    if (confirm(`${name} und alle Daten wirklich löschen?`)) {
-      await deleteCustomer(cid);
-      navigate('/kunden');
-    }
-  };
+  const addressParts = [customer.strasse, customer.plz, customer.ort]
+    .map((p) => (p || '').trim())
+    .filter(Boolean);
+  const mapsHref = addressParts.length
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addressParts.join(', '))}&travelmode=driving`
+    : null;
 
   const handleFoto = async (foto) => {
     await updateCustomer(cid, { foto });
@@ -61,7 +62,7 @@ export default function CustomerProfile() {
   return (
     <div className="safe-top">
       <header className="sticky top-0 bg-bg/95 backdrop-blur z-30 border-b border-black/5">
-        <div className="flex items-center justify-between px-2 pt-1">
+        <div className="flex items-center px-2 pt-1">
           <button
             onClick={() => navigate('/kunden')}
             className="p-2 active:opacity-60"
@@ -69,25 +70,17 @@ export default function CustomerProfile() {
           >
             <ArrowLeft size={22} />
           </button>
-          <button
-            onClick={handleDelete}
-            className="p-2 text-muted active:opacity-60"
-            aria-label="Kunde löschen"
-          >
-            <Trash2 size={20} />
-          </button>
         </div>
 
         <div className="px-4 pb-3 flex items-center gap-4">
           <PhotoButton value={customer.foto} onChange={handleFoto} size={76} />
           <div className="min-w-0 flex-1">
             <h2 className="text-xl font-semibold leading-tight truncate">{displayName}</h2>
-            <p className="text-sm text-muted truncate">{customer.telefon || '—'}</p>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {phoneHref && (
                 <a
                   href={phoneHref}
-                  className="inline-flex items-center gap-1.5 bg-ink text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-1.5 bg-brand text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
                 >
                   <Phone size={14} /> Anrufen
                 </a>
@@ -101,6 +94,17 @@ export default function CustomerProfile() {
                   aria-label="WhatsApp öffnen"
                 >
                   <WhatsAppIcon /> WhatsApp
+                </a>
+              )}
+              {mapsHref && (
+                <a
+                  href={mapsHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-ink text-white text-sm rounded-full px-3 py-1.5 active:opacity-80 transition-opacity"
+                  aria-label="Route in Google Maps"
+                >
+                  <Navigation size={14} /> Route
                 </a>
               )}
             </div>
@@ -128,6 +132,7 @@ export default function CustomerProfile() {
         <Routes>
           <Route index element={<Navigate to="timeline" replace />} />
           <Route path="timeline" element={<TimelineTab customerId={cid} />} />
+          <Route path="aenderungen" element={<AlterationsTab customerId={cid} />} />
           <Route path="profil" element={<ProfileTab customer={customer} />} />
           <Route path="notizen" element={<NotesTab customer={customer} />} />
           <Route path="order" element={<OrderTab customerId={cid} />} />

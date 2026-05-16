@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Camera, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { resizeImage } from '../utils/photo';
 
 export default function PhotoButton({ value, onChange, size = 72 }) {
@@ -33,9 +33,6 @@ export default function PhotoButton({ value, onChange, size = 72 }) {
         ) : (
           <User size={size * 0.5} className="text-muted" strokeWidth={1.5} />
         )}
-        <span className="absolute bottom-0 right-0 bg-brand text-white rounded-full p-1 shadow">
-          <Camera size={Math.max(12, size * 0.18)} />
-        </span>
         {busy && (
           <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-xs text-white">…</span>
         )}
@@ -44,7 +41,6 @@ export default function PhotoButton({ value, onChange, size = 72 }) {
         ref={ref}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handle}
         className="hidden"
       />
