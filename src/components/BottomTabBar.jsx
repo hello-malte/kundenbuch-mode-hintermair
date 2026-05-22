@@ -1,11 +1,21 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
+  Home,
   Users,
   Scissors,
   Bookmark,
   Truck,
-  ShoppingBag
+  ShoppingBag,
+  Settings
 } from 'lucide-react';
+
+const HOME_TAB = {
+  to: '/',
+  label: 'Home',
+  icon: Home,
+  match: '/',
+  exact: true
+};
 
 const HOME_TABS = [
   { to: '/verkauf/kunden', label: 'Verkauf', icon: Users, match: '/verkauf' },
@@ -23,35 +33,57 @@ const EINKAUF_TABS = [
   { to: '/einkauf/termine', label: 'Order', icon: ShoppingBag, match: '/einkauf/termine' }
 ];
 
-export default function BottomTabBar() {
+export default function BottomTabBar({ onSettingsClick }) {
   const { pathname } = useLocation();
 
-  let tabs;
-  if (pathname.startsWith('/verkauf')) tabs = VERKAUF_TABS;
-  else if (pathname.startsWith('/einkauf')) tabs = EINKAUF_TABS;
-  else tabs = HOME_TABS;
+  let middleTabs;
+  if (pathname.startsWith('/verkauf')) middleTabs = VERKAUF_TABS;
+  else if (pathname.startsWith('/einkauf')) middleTabs = EINKAUF_TABS;
+  else middleTabs = HOME_TABS;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 bg-surface/95 backdrop-blur border-t border-black/5 safe-bottom z-40">
       <div className="flex h-16">
-        {tabs.map(({ to, label, icon: Icon, match }) => {
-          const active = pathname.startsWith(match);
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 transition-colors duration-200 ${
-                active ? 'text-brand' : 'text-muted'
-              }`}
-            >
-              <Icon size={22} strokeWidth={active ? 2.2 : 1.7} />
-              <span className="text-[10px] tracking-tight truncate max-w-full">
-                {label}
-              </span>
-            </NavLink>
-          );
-        })}
+        <TabLink tab={HOME_TAB} pathname={pathname} />
+        {middleTabs.map((t) => (
+          <TabLink key={t.to} tab={t} pathname={pathname} />
+        ))}
+        <SettingsButton onClick={onSettingsClick} />
       </div>
     </nav>
+  );
+}
+
+function TabLink({ tab, pathname }) {
+  const { to, label, icon: Icon, match, exact } = tab;
+  const active = exact ? pathname === match : pathname.startsWith(match);
+  return (
+    <NavLink
+      to={to}
+      className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 transition-colors duration-200 ${
+        active ? 'text-brand' : 'text-muted'
+      }`}
+    >
+      <Icon size={22} strokeWidth={active ? 2.2 : 1.7} />
+      <span className="text-[10px] tracking-tight truncate max-w-full">
+        {label}
+      </span>
+    </NavLink>
+  );
+}
+
+function SettingsButton({ onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 text-muted active:text-brand transition-colors duration-200"
+      aria-label="Daten"
+    >
+      <Settings size={22} strokeWidth={1.7} />
+      <span className="text-[10px] tracking-tight truncate max-w-full">
+        Daten
+      </span>
+    </button>
   );
 }

@@ -1,10 +1,9 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Search, Plus, User, X, Settings, Trash2, Cake } from 'lucide-react';
+import { Search, Plus, User, X, Trash2, Cake } from 'lucide-react';
 import { db, createCustomer, deleteCustomer } from '../db/database';
 import Logo from '../components/Logo';
-import BackupMenu from '../components/BackupMenu';
 
 function todayMonthDay() {
   const d = new Date();
@@ -20,7 +19,6 @@ function computeAge(geburtstag) {
 
 export default function CustomerList() {
   const [q, setQ] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const navigate = useNavigate();
 
@@ -69,18 +67,9 @@ export default function CustomerList() {
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
         <div className="flex items-center justify-between mb-3 min-h-[40px]">
           <Logo />
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">
-              {customers ? `${named.length} Kunde${named.length === 1 ? '' : 'n'}` : ''}
-            </span>
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="p-2 -mr-1 text-muted active:text-ink"
-              aria-label="Daten verwalten"
-            >
-              <Settings size={20} />
-            </button>
-          </div>
+          <span className="text-xs text-muted">
+            {customers ? `${named.length} Kunde${named.length === 1 ? '' : 'n'}` : ''}
+          </span>
         </div>
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
@@ -165,7 +154,6 @@ export default function CustomerList() {
         <Plus size={26} strokeWidth={2.4} />
       </button>
 
-      <BackupMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <DeleteSheet
         customer={deleteTarget}

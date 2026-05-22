@@ -28,9 +28,19 @@ export default function BackupMenu({ open, onClose }) {
       const filename = `kundenbuch-export-${today}.json`;
       const file = new File([json], filename, { type: 'application/json' });
 
+      const markBackupDone = () => {
+        try {
+          localStorage.setItem(
+            'kundenbuch-last-backup',
+            new Date().toISOString()
+          );
+        } catch {}
+      };
+
       if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({ files: [file], title: 'Kundenbuch Backup' });
+          markBackupDone();
           setInfo('Backup geteilt.');
           return;
         } catch (e) {
@@ -47,6 +57,7 @@ export default function BackupMenu({ open, onClose }) {
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      markBackupDone();
       setInfo('Backup heruntergeladen.');
     } catch (e) {
       setError(e?.message || 'Export fehlgeschlagen.');

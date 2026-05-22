@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import BottomTabBar from './components/BottomTabBar';
+import BackupMenu from './components/BackupMenu';
 import Home from './pages/Home';
 import CustomerList from './pages/CustomerList';
 import CustomerProfile from './pages/CustomerProfile';
@@ -12,6 +14,14 @@ import OrderDatesOverview from './pages/OrderDatesOverview';
 import OrderAppointmentProfile from './pages/OrderAppointmentProfile';
 
 export default function App() {
+  const [backupOpen, setBackupOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setBackupOpen(true);
+    window.addEventListener('open-backup', handler);
+    return () => window.removeEventListener('open-backup', handler);
+  }, []);
+
   return (
     <div className="min-h-full flex flex-col bg-bg">
       <main className="flex-1 pb-tabbar">
@@ -41,7 +51,8 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <BottomTabBar />
+      <BottomTabBar onSettingsClick={() => setBackupOpen(true)} />
+      <BackupMenu open={backupOpen} onClose={() => setBackupOpen(false)} />
     </div>
   );
 }

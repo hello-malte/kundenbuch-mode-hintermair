@@ -18,7 +18,8 @@ import {
   Camera,
   Edit3,
   X,
-  Share2
+  Share2,
+  Database
 } from 'lucide-react';
 import { getCalendarWeek, greetingForHour } from '../utils/calendar';
 import { getCurrentWeather, weatherCodeInfo } from '../utils/weather';
@@ -177,12 +178,14 @@ export default function Home() {
         />
       </header>
 
-      <div className="mt-6 mb-7">
+      <div className="mt-6 mb-5">
         <div className="text-2xl text-muted">{greeting},</div>
         <div className="text-4xl font-bold text-ink tracking-tight">
           {USER_NAME}
         </div>
       </div>
+
+      <BackupReminderBanner />
 
       <div className="grid grid-cols-2 gap-3">
         <DateCard
@@ -469,6 +472,52 @@ function NotepadSheet({ onClose }) {
         autoFocus
       />
     </div>
+  );
+}
+
+function BackupReminderBanner() {
+  const stats = useLiveQuery(async () => {
+    const [c, t, a, r, s, o] = await Promise.all([
+      db.customers.count(),
+      db.timeline_entries.count(),
+      db.alterations.count(),
+      db.reservations.count(),
+      db.suppliers.count(),
+      db.order_appointments.count()
+    ]);
+    return c + t + a + r + s + o;
+  }, []);
+
+  const [needed, setNeeded] = useState(false);
+  useEffect(() => {
+    const lastIso = localStorage.getItem('kundenbuch-last-backup');
+    if (!lastIso) {
+      setNeeded(true);
+      return;
+    }
+    const lastDate = new Date(lastIso);
+    const todayStr = new Date().toDateString();
+    setNeeded(lastDate.toDateString() !== todayStr);
+  }, []);
+
+  if (!needed || !stats || stats === 0) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => window.dispatchEvent(new CustomEvent('open-backup'))}
+      className="w-full text-left bg-brand text-white rounded-2xl p-3 mb-3 flex items-center gap-3 active:opacity-90 transition-opacity"
+    >
+      <Database size={20} className="shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="text-[10px] uppercase tracking-[0.2em] font-medium opacity-90">
+          Backup heute fällig
+        </div>
+        <div className="text-sm font-medium leading-snug">
+          Tippen für Daten-Export
+        </div>
+      </div>
+    </button>
   );
 }
 
