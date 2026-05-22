@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import QRCode from 'react-qr-code';
 import {
   Sun,
@@ -10,11 +12,13 @@ import {
   CloudSnow,
   CloudLightning,
   Calendar,
-  Quote
+  Cake,
+  Scissors,
+  Sparkles
 } from 'lucide-react';
 import { getCalendarWeek, greetingForHour } from '../utils/calendar';
 import { getCurrentWeather, weatherCodeInfo } from '../utils/weather';
-import { quoteForDate } from '../utils/quotes';
+import { db } from '../db/database';
 
 const WEATHER_ICON_MAP = {
   sun: Sun,
@@ -43,6 +47,10 @@ const VCARD = [
   'END:VCARD'
 ].join('\n');
 
+function pad(n) {
+  return String(n).padStart(2, '0');
+}
+
 export default function Home() {
   const now = new Date();
   const greeting = greetingForHour(now.getHours());
@@ -50,7 +58,6 @@ export default function Home() {
   const day = now.getDate();
   const month = now.toLocaleDateString('de-DE', { month: 'short' });
   const kw = getCalendarWeek(now);
-  const quote = quoteForDate(now);
 
   const [weather, setWeather] = useState(null);
   useEffect(() => {
@@ -62,6 +69,81 @@ export default function Home() {
       alive = false;
     };
   }, []);
+
+  const events = useLiveQuery(async () => {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+    const todayMD = `${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
+    const [customers, alterations, appointments, suppliers] = await Promise.all([
+      db.customers.toArray(),
+      db.alterations.toArray(),
+      db.order_appointments.toArray(),
+      db.suppliers.toArray()
+    ]);
+
+    const supplierMap = new Map(suppliers.map((s) => [s.id, s]));
+
+    const items = [];
+
+    customers
+      .filter((c) => c.geburtstag && c.geburtstag.slice(5) === todayMD)
+      .forEach((c) => {
+        items.push({
+          type: 'birthday',
+          id: `b-${c.id}`,
+          to: `/verkauf/kunden/${c.id}`,
+          label: `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Geburtstag',
+          time: null
+        });
+      });
+
+    alterations
+      .filter((a) => !a.erledigt && a.fertig_bis === todayStr)
+      .forEach((a) => {
+        const c = customers.find((x) => x.id === a.kunden_id);
+        items.push({
+          type: 'alteration',
+          id: `a-${a.id}`,
+          to: c ? `/verkauf/kunden/${c.id}/aenderungen` : '/verkauf/aenderungen',
+          label:
+            (a.beschreibung || 'Änderung').slice(0, 28) +
+            ((a.beschreibung || '').length > 28 ? '…' : ''),
+          time: null
+        });
+      });
+
+    appointments
+      .filter(
+        (a) => a.termin_am && a.termin_am.slice(0, 10) === todayStr
+      )
+      .forEach((a) => {
+        const s = supplierMap.get(a.lieferant_id);
+        const time = a.termin_am
+          ? new Date(a.termin_am).toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : '';
+        items.push({
+          type: 'appointment',
+          id: `t-${a.id}`,
+          to: `/einkauf/termine/${a.id}`,
+          label: s?.lieferanten_name || 'Order-Termin',
+          time
+        });
+      });
+
+    items.sort((a, b) => {
+      const priority = { appointment: 0, alteration: 1, birthday: 2 };
+      const pa = priority[a.type] ?? 99;
+      const pb = priority[b.type] ?? 99;
+      if (pa !== pb) return pa - pb;
+      return (a.time || '').localeCompare(b.time || '');
+    });
+
+    return items;
+  }, []) || [];
 
   return (
     <div className="safe-top min-h-full px-5 pb-12">
@@ -84,7 +166,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-2 gap-3">
         <DateCard
           weekday={weekday}
           day={day}
@@ -93,42 +175,60 @@ export default function Home() {
           kw={kw}
         />
         <WeatherCard weather={weather} />
+        <TodayCard events={events} />
+        <ContactQRCard />
       </div>
+    </div>
+  );
+}
 
-      <QuoteCard quote={quote} />
-
-      <ContactQRCard />
+function CardShell({ children, tone = 'white' }) {
+  const toneClass =
+    tone === 'magenta'
+      ? 'bg-brand/10 ring-brand/20'
+      : tone === 'blue'
+      ? 'bg-blue-50 ring-blue-100'
+      : 'bg-surface ring-black/5 shadow-sm shadow-black/[0.02]';
+  return (
+    <div
+      className={`rounded-3xl p-4 ring-1 aspect-square flex flex-col ${toneClass}`}
+    >
+      {children}
     </div>
   );
 }
 
 function DateCard({ weekday, day, month, year, kw }) {
   return (
-    <div className="bg-brand/10 rounded-3xl p-4 ring-1 ring-brand/20">
-      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
+    <CardShell tone="magenta">
+      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
         <Calendar size={20} className="text-brand" />
       </div>
-      <div className="text-xs text-muted capitalize">{weekday}</div>
-      <div className="text-2xl font-bold text-ink leading-tight mt-0.5">
-        {day}. {month}
+      <div className="mt-3">
+        <div className="text-xs text-muted capitalize">{weekday}</div>
+        <div className="text-2xl font-bold text-ink leading-tight mt-0.5">
+          {day}. {month}
+        </div>
+        <div className="text-xs text-muted mt-0.5">
+          {year} · KW {kw}
+        </div>
       </div>
-      <div className="text-xs text-muted mt-0.5">
-        {year} · KW {kw}
-      </div>
-    </div>
+    </CardShell>
   );
 }
 
 function WeatherCard({ weather }) {
   if (!weather) {
     return (
-      <div className="bg-blue-50 rounded-3xl p-4 ring-1 ring-blue-100 min-h-[150px] flex flex-col">
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
+      <CardShell tone="blue">
+        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
           <Cloud size={20} className="text-blue-400" />
         </div>
-        <div className="text-xs text-muted">Wetter</div>
-        <div className="text-sm text-muted mt-2">Lade …</div>
-      </div>
+        <div className="mt-3">
+          <div className="text-xs text-muted">Wetter</div>
+          <div className="text-sm text-muted mt-1">Lade …</div>
+        </div>
+      </CardShell>
     );
   }
 
@@ -136,58 +236,91 @@ function WeatherCard({ weather }) {
   const Icon = WEATHER_ICON_MAP[info.iconKey] || Cloud;
 
   return (
-    <div className="bg-blue-50 rounded-3xl p-4 ring-1 ring-blue-100">
-      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
+    <CardShell tone="blue">
+      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
         <Icon size={20} className="text-blue-500" />
       </div>
-      <div className="text-xs text-muted">{info.label}</div>
-      <div className="text-2xl font-bold text-ink leading-tight mt-0.5">
-        {weather.temperature}°
+      <div className="mt-3">
+        <div className="text-xs text-muted">{info.label}</div>
+        <div className="text-2xl font-bold text-ink leading-tight mt-0.5">
+          {weather.temperature}°
+        </div>
+        <div className="text-xs text-muted mt-0.5">in Ried</div>
       </div>
-      <div className="text-xs text-muted mt-0.5">in Ried</div>
-    </div>
+    </CardShell>
   );
 }
 
-function QuoteCard({ quote }) {
+function TodayCard({ events }) {
+  const visible = events.slice(0, 3);
+  const remaining = Math.max(0, events.length - visible.length);
+
   return (
-    <div className="bg-surface rounded-3xl p-4 ring-1 ring-black/5 shadow-sm shadow-black/[0.02] mb-3">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center shrink-0">
-          <Quote size={20} className="text-brand" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-brand font-medium mb-1.5">
-            Spruch des Tages
-          </div>
-          <p className="text-sm text-ink leading-relaxed">
-            «{quote.text}»
-          </p>
-          <div className="text-xs text-muted mt-2">— {quote.author}</div>
-        </div>
+    <CardShell>
+      <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center mb-2">
+        <Sparkles size={20} className="text-brand" />
       </div>
-    </div>
+      <div className="text-[10px] uppercase tracking-[0.2em] text-brand font-medium mb-2">
+        Heute
+      </div>
+      {events.length === 0 ? (
+        <div className="text-xs text-muted leading-snug">
+          Keine Termine
+          <br />
+          oder Erinnerungen.
+        </div>
+      ) : (
+        <ul className="space-y-1.5 flex-1 min-h-0 overflow-hidden">
+          {visible.map((e) => (
+            <li key={e.id}>
+              <Link
+                to={e.to}
+                className="flex items-center gap-1.5 text-xs text-ink leading-tight"
+              >
+                <EventIcon type={e.type} />
+                <span className="truncate flex-1">
+                  {e.time && (
+                    <span className="text-muted mr-1">{e.time}</span>
+                  )}
+                  {e.label}
+                </span>
+              </Link>
+            </li>
+          ))}
+          {remaining > 0 && (
+            <li className="text-[10px] text-muted pl-5">
+              + {remaining} weitere
+            </li>
+          )}
+        </ul>
+      )}
+    </CardShell>
   );
+}
+
+function EventIcon({ type }) {
+  if (type === 'birthday') {
+    return <Cake size={12} className="text-brand shrink-0" />;
+  }
+  if (type === 'alteration') {
+    return <Scissors size={12} className="text-brand shrink-0" />;
+  }
+  return <Calendar size={12} className="text-brand shrink-0" />;
 }
 
 function ContactQRCard() {
   return (
-    <div className="bg-surface rounded-3xl p-5 ring-1 ring-black/5 shadow-sm shadow-black/[0.02] flex flex-col items-center">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-brand font-medium mb-3">
-        Kontakt scannen
-      </div>
-      <div className="bg-white rounded-2xl p-3 ring-1 ring-brand/20">
+    <CardShell>
+      <div className="flex-1 flex items-center justify-center">
         <QRCode
           value={VCARD}
-          size={180}
+          size={140}
           fgColor="#9C0E5D"
           bgColor="#FFFFFF"
           level="M"
+          style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
         />
       </div>
-      <div className="text-xs text-muted mt-3 text-center max-w-[240px] leading-snug">
-        Kamera-App scannen — Mode Hintermair direkt zu den Kontakten hinzufügen.
-      </div>
-    </div>
+    </CardShell>
   );
 }
