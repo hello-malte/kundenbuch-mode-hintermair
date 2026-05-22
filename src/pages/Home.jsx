@@ -222,29 +222,38 @@ export default function Home() {
   );
 }
 
-function CardShell({ children, tone = 'white', onClick }) {
+function CardShell({ children, tone = 'white', onClick, href }) {
   const toneClass =
     tone === 'magenta'
       ? 'bg-brand/10 ring-brand/20'
       : tone === 'blue'
       ? 'bg-blue-50 ring-blue-100'
       : 'bg-surface ring-black/5 shadow-sm shadow-black/[0.02]';
-  const Comp = onClick ? 'button' : 'div';
-  return (
-    <Comp
-      onClick={onClick}
-      className={`rounded-3xl p-4 ring-1 aspect-square flex flex-col text-left ${toneClass} ${
-        onClick ? 'active:scale-[0.98] transition-transform' : ''
-      }`}
-    >
-      {children}
-    </Comp>
-  );
+  const interactive = onClick || href;
+  const interactiveClass = interactive
+    ? 'active:scale-[0.98] transition-transform'
+    : '';
+  const baseClass = `rounded-3xl p-4 ring-1 aspect-square flex flex-col text-left no-underline text-inherit ${toneClass} ${interactiveClass}`;
+  if (href) {
+    return (
+      <a href={href} className={baseClass}>
+        {children}
+      </a>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={baseClass}>
+        {children}
+      </button>
+    );
+  }
+  return <div className={baseClass}>{children}</div>;
 }
 
 function DateCard({ weekday, day, month, year, kw }) {
   return (
-    <CardShell tone="magenta">
+    <CardShell tone="magenta" href="calshow:">
       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
         <Calendar size={20} className="text-brand" />
       </div>
@@ -264,7 +273,7 @@ function DateCard({ weekday, day, month, year, kw }) {
 function WeatherCard({ weather }) {
   if (!weather) {
     return (
-      <CardShell tone="blue">
+      <CardShell tone="blue" href="weather://">
         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
           <Cloud size={20} className="text-blue-400" />
         </div>
@@ -278,7 +287,7 @@ function WeatherCard({ weather }) {
   const info = weatherCodeInfo(weather.code);
   const Icon = WEATHER_ICON_MAP[info.iconKey] || Cloud;
   return (
-    <CardShell tone="blue">
+    <CardShell tone="blue" href="weather://">
       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
         <Icon size={20} className="text-blue-500" />
       </div>
