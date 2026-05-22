@@ -85,6 +85,62 @@ export async function deleteSupplier(id) {
   );
 }
 
+export const SAISON_OPTIONS = [
+  { value: 'fruehjahr', label: 'Frühjahr' },
+  { value: 'sommer', label: 'Sommer' },
+  { value: 'herbst_winter', label: 'Herbst/Winter' }
+];
+
+const orderAppointmentDefaults = () => ({
+  lieferant_id: null,
+  termin_am: '',
+  budget_wert: '',
+  budget_stueckzahl: '',
+  liefertermin_von: '',
+  liefertermin_bis: '',
+  saison: '',
+  saison_jahr: String(new Date().getFullYear()),
+  konditionen: '',
+  artikel: []
+});
+
+function cleanArtikel(artikel) {
+  return (artikel || [])
+    .map((a) => ({
+      fotos: a.fotos || [],
+      notiz: (a.notiz || '').trim()
+    }))
+    .filter((a) => a.fotos.length || a.notiz);
+}
+
+export async function createOrderAppointment({ lieferant_id }) {
+  const now = new Date().toISOString();
+  return db.order_appointments.add({
+    ...orderAppointmentDefaults(),
+    lieferant_id,
+    erstellt_am: now,
+    geaendert_am: now
+  });
+}
+
+export async function updateOrderAppointment(id, patch) {
+  const existing = await db.order_appointments.get(id);
+  if (!existing) return;
+  const next = {
+    ...existing,
+    ...patch,
+    geaendert_am: new Date().toISOString()
+  };
+  if (patch.artikel !== undefined) {
+    next.artikel = cleanArtikel(patch.artikel);
+  }
+  return db.order_appointments.put(next);
+}
+
+export async function deleteOrderAppointment(id) {
+  return db.order_appointments.delete(id);
+}
+
 const customerDefaults = () => ({
   vorname: '',
   nachname: '',

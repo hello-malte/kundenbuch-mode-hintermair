@@ -9,6 +9,7 @@ import ReservationsOverview from './pages/ReservationsOverview';
 import SupplierList from './pages/SupplierList';
 import SupplierProfile from './pages/SupplierProfile';
 import OrderDatesOverview from './pages/OrderDatesOverview';
+import OrderAppointmentProfile from './pages/OrderAppointmentProfile';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/einkauf/lieferanten" element={<SupplierList />} />
           <Route path="/einkauf/lieferanten/:id/*" element={<SupplierProfile />} />
           <Route path="/einkauf/termine" element={<OrderDatesOverview />} />
+          <Route path="/einkauf/termine/:id" element={<OrderAppointmentProfile />} />
           <Route path="/einkauf/brands" element={<OrderOverview />} />
 
           {/* Legacy-URL-Weiterleitungen */}
