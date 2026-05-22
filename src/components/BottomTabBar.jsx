@@ -3,10 +3,8 @@ import {
   Users,
   Scissors,
   Bookmark,
-  ShoppingBag,
   Truck,
-  Calendar,
-  Tag
+  ShoppingBag
 } from 'lucide-react';
 
 const HOME_TABS = [
@@ -22,8 +20,7 @@ const VERKAUF_TABS = [
 
 const EINKAUF_TABS = [
   { to: '/einkauf/lieferanten', label: 'Lieferanten', icon: Truck, match: '/einkauf/lieferanten' },
-  { to: '/einkauf/termine', label: 'Termine', icon: Calendar, match: '/einkauf/termine' },
-  { to: '/einkauf/brands', label: 'Brands', icon: Tag, match: '/einkauf/brands' }
+  { to: '/einkauf/termine', label: 'Order', icon: ShoppingBag, match: '/einkauf/termine' }
 ];
 
 export default function BottomTabBar() {

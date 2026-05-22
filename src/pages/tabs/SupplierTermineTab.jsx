@@ -47,14 +47,14 @@ export default function SupplierTermineTab({ supplierId }) {
           onClick={handleNew}
           className="inline-flex items-center gap-2 bg-brand text-white font-medium rounded-full px-4 py-2 active:scale-95 transition-transform duration-200"
         >
-          <Plus size={16} /> Neuer Termin
+          <Plus size={16} /> Neue Order
         </button>
       </div>
 
       {list.length === 0 && (
         <div className="py-12 text-center text-muted">
           <Calendar size={28} className="text-brand/40 mx-auto mb-2" />
-          <p className="text-sm">Noch keine Termine.</p>
+          <p className="text-sm">Noch keine Order-Termine.</p>
         </div>
       )}
 

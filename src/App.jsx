@@ -28,7 +28,7 @@ export default function App() {
           <Route path="/einkauf/lieferanten" element={<SupplierList />} />
           <Route path="/einkauf/lieferanten/:id/*" element={<SupplierProfile />} />
           <Route path="/einkauf/termine" element={<OrderDatesOverview />} />
-          <Route path="/einkauf/termine/:id" element={<OrderAppointmentProfile />} />
+          <Route path="/einkauf/termine/:id/*" element={<OrderAppointmentProfile />} />
           <Route path="/einkauf/brands" element={<OrderOverview />} />
 
           {/* Legacy-URL-Weiterleitungen */}
@@ -36,7 +36,7 @@ export default function App() {
           <Route path="/kunden/:id/*" element={<LegacyCustomerRedirect />} />
           <Route path="/aenderungen" element={<Navigate to="/verkauf/aenderungen" replace />} />
           <Route path="/reservierungen" element={<Navigate to="/verkauf/reservierungen" replace />} />
-          <Route path="/order" element={<Navigate to="/einkauf/brands" replace />} />
+          <Route path="/order" element={<Navigate to="/einkauf/termine" replace />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

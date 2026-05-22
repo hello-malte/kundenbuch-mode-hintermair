@@ -45,9 +45,9 @@ export default function OrderDatesOverview() {
 
       {data.length === 0 ? (
         <div className="text-muted text-center py-16 px-6">
-          Noch keine Order-Termine.
+          Noch keine Order.
           <br />
-          Tippe auf <span className="text-brand">+</span> um einen Termin anzulegen.
+          Tippe auf <span className="text-brand">+</span> um eine neue Order anzulegen.
         </div>
       ) : (
         <div className="px-4 pb-4 space-y-6">
@@ -83,7 +83,7 @@ export default function OrderDatesOverview() {
         onClick={() => setPicking(true)}
         className="fixed right-4 z-30 w-14 h-14 rounded-full bg-brand text-white flex items-center justify-center shadow-xl shadow-brand/30 active:scale-95 transition-transform duration-200"
         style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
-        aria-label="Neuer Termin"
+        aria-label="Neue Order"
       >
         <Plus size={26} strokeWidth={2.4} />
       </button>

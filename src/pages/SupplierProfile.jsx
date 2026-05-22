@@ -9,16 +9,17 @@ import {
   Navigate
 } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, Phone, Navigation, Mail, Truck } from 'lucide-react';
+import { ArrowLeft, Phone, Navigation, Mail, Heart } from 'lucide-react';
 import { db, updateSupplier } from '../db/database';
 import { phoneToWa } from '../utils/share';
 import PhotoButton from '../components/PhotoButton';
+import SupplierWishesSheet from '../components/SupplierWishesSheet';
 import SupplierProfileTab from './tabs/SupplierProfileTab';
 import SupplierNotesTab from './tabs/SupplierNotesTab';
 import SupplierTermineTab from './tabs/SupplierTermineTab';
 
 const tabs = [
-  { to: 'termine', label: 'Termine' },
+  { to: 'termine', label: 'Order' },
   { to: 'profil', label: 'Profil' },
   { to: 'notizen', label: 'Notizen' }
 ];
@@ -101,6 +102,20 @@ export default function SupplierProfile() {
     async () => (await db.suppliers.get(sid)) ?? null,
     [sid]
   );
+
+  const wishCount = useLiveQuery(async () => {
+    if (!supplier?.lieferanten_name) return 0;
+    const name = supplier.lieferanten_name.trim().toLowerCase();
+    if (!name) return 0;
+    const items = await db.order_items.toArray();
+    return items.filter((i) => {
+      const brand = (i.brand || '').trim().toLowerCase();
+      if (!brand) return false;
+      return brand === name || brand.includes(name) || name.includes(brand);
+    }).length;
+  }, [supplier?.lieferanten_name]) || 0;
+
+  const [wishesOpen, setWishesOpen] = useState(false);
 
   if (supplier === undefined) {
     return <div className="p-8 text-muted">Lade …</div>;
@@ -196,6 +211,15 @@ export default function SupplierProfile() {
                 </a>
               )}
             </div>
+            {wishCount > 0 && (
+              <button
+                onClick={() => setWishesOpen(true)}
+                className="inline-flex items-center gap-1.5 mt-2.5 bg-brand/10 ring-1 ring-brand/40 text-brand text-sm font-medium rounded-full px-3 py-1 active:opacity-80 transition-opacity"
+              >
+                <Heart size={14} />
+                {wishCount} {wishCount === 1 ? 'Kundenwunsch' : 'Kundenwünsche'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -250,6 +274,13 @@ export default function SupplierProfile() {
           <Route path="*" element={<Navigate to="termine" replace />} />
         </Routes>
       </div>
+
+      {wishesOpen && (
+        <SupplierWishesSheet
+          supplier={supplier}
+          onClose={() => setWishesOpen(false)}
+        />
+      )}
     </div>
   );
 }
