@@ -104,15 +104,6 @@ const orderAppointmentDefaults = () => ({
   artikel: []
 });
 
-function cleanArtikel(artikel) {
-  return (artikel || [])
-    .map((a) => ({
-      fotos: a.fotos || [],
-      notiz: (a.notiz || '').trim()
-    }))
-    .filter((a) => a.fotos.length || a.notiz);
-}
-
 export async function createOrderAppointment({ lieferant_id }) {
   const now = new Date().toISOString();
   return db.order_appointments.add({
