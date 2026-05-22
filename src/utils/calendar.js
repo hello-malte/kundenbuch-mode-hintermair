@@ -1,3 +1,10 @@
+export function greetingForHour(hour = new Date().getHours()) {
+  if (hour >= 5 && hour < 11) return 'Guten Morgen';
+  if (hour >= 11 && hour < 13) return 'Hallo';
+  if (hour >= 13 && hour < 17) return 'Schönen Nachmittag';
+  return 'Guten Abend';
+}
+
 export function getCalendarWeek(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
