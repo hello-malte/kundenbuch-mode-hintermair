@@ -149,7 +149,7 @@ export default function OrderOverview() {
                 {byBrand[b].map((i) => (
                   <li key={i.id}>
                     <Link
-                      to={`/kunden/${i.customer.id}/order`}
+                      to={`/verkauf/kunden/${i.customer.id}/order`}
                       className={`flex items-start justify-between gap-3 p-3 active:bg-surface2 transition-colors duration-200 ${
                         i.erledigt ? 'opacity-50' : ''
                       }`}

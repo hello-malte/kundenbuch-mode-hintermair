@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.svg', 'icon-512.svg', 'apple-touch-icon.svg'],
       manifest: {
-        name: 'Kundenbuch',
-        short_name: 'Kundenbuch',
-        description: 'Kundenverwaltung & Order-Planung für den Modeeinzelhandel',
+        name: 'Mode Hintermair',
+        short_name: 'Hintermair',
+        description: 'Mode Hintermair Kundenbuch — Verkauf & Einkauf',
         lang: 'de',
         theme_color: '#FFFFFF',
         background_color: '#FFFFFF',

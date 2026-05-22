@@ -23,6 +23,68 @@ db.version(3).stores({
   reservations: '++id, kunden_id, datum, erledigt, erstellt_am'
 });
 
+db.version(4).stores({
+  customers: '++id, nachname, vorname, telefon, geaendert_am',
+  timeline_entries: '++id, kunden_id, datum, erstellt_am',
+  order_items: '++id, kunden_id, brand, erledigt',
+  alterations: '++id, kunden_id, datum, erledigt, erstellt_am',
+  reservations: '++id, kunden_id, datum, erledigt, erstellt_am',
+  suppliers: '++id, lieferanten_name, nachname, geaendert_am',
+  order_appointments: '++id, lieferant_id, termin_am, saison_jahr, erstellt_am'
+});
+
+export const SUPPLIER_KATEGORIEN = [
+  { value: 'damen', label: 'Damen' },
+  { value: 'herren', label: 'Herren' },
+  { value: 'tracht_damen', label: 'Tracht Damen' },
+  { value: 'tracht_herren', label: 'Tracht Herren' },
+  { value: 'kinder', label: 'Kinder' }
+];
+
+const supplierDefaults = () => ({
+  lieferanten_name: '',
+  vorname: '',
+  nachname: '',
+  strasse: '',
+  plz: '',
+  ort: '',
+  email: '',
+  mobil: '',
+  arbeit: '',
+  kategorien: [],
+  foto: null,
+  notizen_freitext: ''
+});
+
+export async function createSupplier(partial = {}) {
+  const now = new Date().toISOString();
+  return db.suppliers.add({
+    ...supplierDefaults(),
+    ...partial,
+    erstellt_am: now,
+    geaendert_am: now
+  });
+}
+
+export async function updateSupplier(id, patch) {
+  return db.suppliers.update(id, {
+    ...patch,
+    geaendert_am: new Date().toISOString()
+  });
+}
+
+export async function deleteSupplier(id) {
+  await db.transaction(
+    'rw',
+    db.suppliers,
+    db.order_appointments,
+    async () => {
+      await db.order_appointments.where('lieferant_id').equals(id).delete();
+      await db.suppliers.delete(id);
+    }
+  );
+}
+
 const customerDefaults = () => ({
   vorname: '',
   nachname: '',
@@ -226,7 +288,7 @@ export async function deleteReservation(id) {
   return db.reservations.delete(id);
 }
 
-export const BACKUP_VERSION = 3;
+export const BACKUP_VERSION = 4;
 
 export async function exportAllData() {
   const [
@@ -234,13 +296,17 @@ export async function exportAllData() {
     timeline_entries,
     order_items,
     alterations,
-    reservations
+    reservations,
+    suppliers,
+    order_appointments
   ] = await Promise.all([
     db.customers.toArray(),
     db.timeline_entries.toArray(),
     db.order_items.toArray(),
     db.alterations.toArray(),
-    db.reservations.toArray()
+    db.reservations.toArray(),
+    db.suppliers.toArray(),
+    db.order_appointments.toArray()
   ]);
   return {
     app: 'kundenbuch',
@@ -250,12 +316,14 @@ export async function exportAllData() {
     timeline_entries,
     order_items,
     alterations,
-    reservations
+    reservations,
+    suppliers,
+    order_appointments
   };
 }
 
 export async function importAllData(data) {
-  if (!data || data.app !== 'kundenbuch' || ![1, 2, 3].includes(data.version)) {
+  if (!data || data.app !== 'kundenbuch' || ![1, 2, 3, 4].includes(data.version)) {
     throw new Error('Datei ist kein gültiges Kundenbuch-Backup.');
   }
   await db.transaction(
@@ -265,12 +333,16 @@ export async function importAllData(data) {
     db.order_items,
     db.alterations,
     db.reservations,
+    db.suppliers,
+    db.order_appointments,
     async () => {
       await db.timeline_entries.clear();
       await db.order_items.clear();
       await db.alterations.clear();
       await db.reservations.clear();
       await db.customers.clear();
+      await db.suppliers.clear();
+      await db.order_appointments.clear();
       if (data.customers?.length) await db.customers.bulkAdd(data.customers);
       if (data.timeline_entries?.length)
         await db.timeline_entries.bulkAdd(data.timeline_entries);
@@ -279,6 +351,10 @@ export async function importAllData(data) {
         await db.alterations.bulkAdd(data.alterations);
       if (data.reservations?.length)
         await db.reservations.bulkAdd(data.reservations);
+      if (data.suppliers?.length)
+        await db.suppliers.bulkAdd(data.suppliers);
+      if (data.order_appointments?.length)
+        await db.order_appointments.bulkAdd(data.order_appointments);
     }
   );
 }
@@ -289,13 +365,25 @@ export async function getStats() {
     timeline_entries,
     order_items,
     alterations,
-    reservations
+    reservations,
+    suppliers,
+    order_appointments
   ] = await Promise.all([
     db.customers.count(),
     db.timeline_entries.count(),
     db.order_items.count(),
     db.alterations.count(),
-    db.reservations.count()
+    db.reservations.count(),
+    db.suppliers.count(),
+    db.order_appointments.count()
   ]);
-  return { customers, timeline_entries, order_items, alterations, reservations };
+  return {
+    customers,
+    timeline_entries,
+    order_items,
+    alterations,
+    reservations,
+    suppliers,
+    order_appointments
+  };
 }

@@ -1,66 +1,55 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Search, Plus, User, X, Settings, Trash2, Cake } from 'lucide-react';
-import { db, createCustomer, deleteCustomer } from '../db/database';
+import { Search, Plus, Truck, X, Trash2 } from 'lucide-react';
+import {
+  db,
+  createSupplier,
+  deleteSupplier,
+  SUPPLIER_KATEGORIEN
+} from '../db/database';
 import Logo from '../components/Logo';
-import BackupMenu from '../components/BackupMenu';
 
-function todayMonthDay() {
-  const d = new Date();
-  return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+const KATEGORIE_LABELS = Object.fromEntries(
+  SUPPLIER_KATEGORIEN.map((k) => [k.value, k.label])
+);
 
-function computeAge(geburtstag) {
-  if (!geburtstag) return null;
-  const year = parseInt(geburtstag.slice(0, 4), 10);
-  if (!year) return null;
-  return new Date().getFullYear() - year;
-}
-
-export default function CustomerList() {
+export default function SupplierList() {
   const [q, setQ] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const navigate = useNavigate();
 
-  const customers = useLiveQuery(
-    () => db.customers.orderBy('nachname').toArray(),
+  const suppliers = useLiveQuery(
+    () => db.suppliers.orderBy('lieferanten_name').toArray(),
     []
   );
 
   const named = useMemo(
     () =>
-      (customers || []).filter(
-        (c) => `${c.vorname || ''} ${c.nachname || ''}`.trim().length > 0
+      (suppliers || []).filter(
+        (s) => (s.lieferanten_name || '').trim().length > 0
       ),
-    [customers]
+    [suppliers]
   );
 
   const filtered = useMemo(() => {
     if (!q.trim()) return named;
     const t = q.trim().toLowerCase();
-    return named.filter((c) =>
-      `${c.vorname || ''} ${c.nachname || ''}`.toLowerCase().includes(t)
+    return named.filter((s) =>
+      `${s.lieferanten_name || ''} ${s.vorname || ''} ${s.nachname || ''}`
+        .toLowerCase()
+        .includes(t)
     );
   }, [named, q]);
 
-  const birthdayToday = useMemo(() => {
-    if (!customers) return [];
-    const md = todayMonthDay();
-    return customers.filter(
-      (c) => c.geburtstag && c.geburtstag.slice(5) === md
-    );
-  }, [customers]);
-
   const handleNew = async () => {
-    const id = await createCustomer({ vorname: '', nachname: '' });
-    navigate(`/verkauf/verkauf/kunden/${id}/profil`);
+    const id = await createSupplier({ lieferanten_name: '' });
+    navigate(`/einkauf/lieferanten/${id}/profil`);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await deleteCustomer(deleteTarget.id);
+    await deleteSupplier(deleteTarget.id);
     setDeleteTarget(null);
   };
 
@@ -71,15 +60,10 @@ export default function CustomerList() {
           <Logo />
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted">
-              {customers ? `${named.length} Kunde${named.length === 1 ? '' : 'n'}` : ''}
+              {suppliers
+                ? `${named.length} Lieferant${named.length === 1 ? '' : 'en'}`
+                : ''}
             </span>
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="p-2 -mr-1 text-muted active:text-ink"
-              aria-label="Daten verwalten"
-            >
-              <Settings size={20} />
-            </button>
           </div>
         </div>
         <div className="relative">
@@ -103,54 +87,21 @@ export default function CustomerList() {
         </div>
       </header>
 
-      {birthdayToday.length > 0 && (
-        <div className="px-4 pt-3">
-          <div className="bg-brand/10 ring-1 ring-brand/40 rounded-2xl p-3 flex items-start gap-3">
-            <Cake size={22} className="text-brand shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <div className="text-xs uppercase tracking-wider text-brand font-medium">
-                Heute Geburtstag
-              </div>
-              <div className="text-sm mt-0.5 leading-relaxed">
-                {birthdayToday.map((c, i) => {
-                  const name = `${c.vorname || ''} ${c.nachname || ''}`.trim() || 'Unbenannt';
-                  const age = computeAge(c.geburtstag);
-                  return (
-                    <span key={c.id}>
-                      {i > 0 && ', '}
-                      <Link
-                        to={`/verkauf/kunden/${c.id}`}
-                        className="font-medium text-ink"
-                      >
-                        {name}
-                        {age != null && (
-                          <span className="text-muted font-normal"> ({age})</span>
-                        )}
-                      </Link>
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <ul className="px-4 pt-3 pb-4 space-y-2">
-        {customers === undefined && (
+        {suppliers === undefined && (
           <li className="text-muted text-center py-10">Lade …</li>
         )}
-        {customers && filtered.length === 0 && (
+        {suppliers && filtered.length === 0 && (
           <li className="text-muted text-center py-12">
             {q
               ? 'Keine Treffer.'
-              : 'Noch keine Kunden. Tippe auf + um anzulegen.'}
+              : 'Noch keine Lieferanten. Tippe auf + um anzulegen.'}
           </li>
         )}
-        {filtered.map((c) => (
-          <CustomerCard
-            key={c.id}
-            customer={c}
+        {filtered.map((s) => (
+          <SupplierCard
+            key={s.id}
+            supplier={s}
             onLongPress={setDeleteTarget}
           />
         ))}
@@ -160,15 +111,13 @@ export default function CustomerList() {
         onClick={handleNew}
         className="fixed right-4 z-30 w-14 h-14 rounded-full bg-brand text-white flex items-center justify-center shadow-xl shadow-brand/30 active:scale-95 transition-transform duration-200"
         style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
-        aria-label="Neuer Kunde"
+        aria-label="Neuer Lieferant"
       >
         <Plus size={26} strokeWidth={2.4} />
       </button>
 
-      <BackupMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-
       <DeleteSheet
-        customer={deleteTarget}
+        supplier={deleteTarget}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
@@ -176,7 +125,7 @@ export default function CustomerList() {
   );
 }
 
-function CustomerCard({ customer, onLongPress }) {
+function SupplierCard({ supplier, onLongPress }) {
   const timerRef = useRef(null);
   const triggeredRef = useRef(false);
   const startRef = useRef(null);
@@ -188,10 +137,9 @@ function CustomerCard({ customer, onLongPress }) {
     timerRef.current = setTimeout(() => {
       triggeredRef.current = true;
       if (navigator.vibrate) navigator.vibrate(35);
-      onLongPress(customer);
+      onLongPress(supplier);
     }, 550);
   };
-
   const moved = (clientX, clientY) => {
     if (!startRef.current) return;
     const dx = clientX - startRef.current.x;
@@ -201,16 +149,17 @@ function CustomerCard({ customer, onLongPress }) {
       startRef.current = null;
     }
   };
-
   const cancel = () => {
     clearTimeout(timerRef.current);
     startRef.current = null;
   };
 
+  const kategorien = supplier.kategorien || [];
+
   return (
     <li>
       <Link
-        to={`/verkauf/kunden/${customer.id}`}
+        to={`/einkauf/lieferanten/${supplier.id}`}
         onClick={(e) => {
           if (triggeredRef.current) {
             e.preventDefault();
@@ -234,34 +183,36 @@ function CustomerCard({ customer, onLongPress }) {
         onContextMenu={(e) => e.preventDefault()}
         className="flex items-center gap-3 bg-surface rounded-2xl p-3 ring-1 ring-black/5 shadow-sm shadow-black/[0.02] active:bg-surface2 transition-colors duration-200 select-none"
       >
-        {customer.foto ? (
+        {supplier.foto ? (
           <img
-            src={customer.foto}
+            src={supplier.foto}
             alt=""
             className="w-12 h-12 rounded-full object-cover shrink-0"
             draggable={false}
           />
         ) : (
           <div className="w-12 h-12 rounded-full bg-surface2 flex items-center justify-center text-muted shrink-0">
-            <User size={22} strokeWidth={1.5} />
+            <Truck size={20} strokeWidth={1.5} />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <div className="font-medium truncate">
-            {`${customer.vorname || ''} ${customer.nachname || ''}`.trim()}
+            {supplier.lieferanten_name}
           </div>
+          {kategorien.length > 0 && (
+            <div className="text-xs text-muted truncate mt-0.5">
+              {kategorien.map((k) => KATEGORIE_LABELS[k]).filter(Boolean).join(' · ')}
+            </div>
+          )}
         </div>
       </Link>
     </li>
   );
 }
 
-function DeleteSheet({ customer, onConfirm, onCancel }) {
-  if (!customer) return null;
-  const name =
-    `${customer.vorname || ''} ${customer.nachname || ''}`.trim() ||
-    'Unbenannter Kunde';
-
+function DeleteSheet({ supplier, onConfirm, onCancel }) {
+  if (!supplier) return null;
+  const name = supplier.lieferanten_name || 'Unbenannter Lieferant';
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
@@ -276,7 +227,7 @@ function DeleteSheet({ customer, onConfirm, onCancel }) {
         <div className="px-5 pt-5 pb-3 text-center">
           <div className="text-lg font-semibold">{name}</div>
           <p className="text-sm text-muted mt-1">
-            Inklusive aller Timeline-Einträge, Notizen und Order-Daten unwiderruflich löschen?
+            Inklusive aller Order-Termine unwiderruflich löschen?
           </p>
         </div>
         <div className="px-4 pb-4 space-y-2">

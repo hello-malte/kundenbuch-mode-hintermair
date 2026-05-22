@@ -186,7 +186,7 @@ export function OverviewRow({ item, hrefTab, onToggle }) {
           aria-label="Erledigt"
         />
         <Link
-          to={`/kunden/${c.id}/${hrefTab}`}
+          to={`/verkauf/kunden/${c.id}/${hrefTab}`}
           className="flex-1 min-w-0 flex items-center gap-3 py-3 pr-3 active:opacity-70 transition-opacity"
         >
           <div className="min-w-0 flex-1">
@@ -269,7 +269,7 @@ function DueBanner({ tone, icon: Icon, label, items }) {
               <span key={a.id}>
                 {i > 0 && ', '}
                 <Link
-                  to={`/kunden/${c.id}/aenderungen`}
+                  to={`/verkauf/kunden/${c.id}/aenderungen`}
                   className={`font-medium underline-offset-2 ${t.link}`}
                 >
                   {name}

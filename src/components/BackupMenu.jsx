@@ -116,15 +116,21 @@ export default function BackupMenu({ open, onClose }) {
               {stats ? (
                 <>
                   <div className="font-medium text-ink">
-                    {stats.customers} Kunde{stats.customers === 1 ? '' : 'n'}
+                    {stats.customers} Kunde{stats.customers === 1 ? '' : 'n'} ·{' '}
+                    {stats.suppliers ?? 0} Lieferant
+                    {stats.suppliers === 1 ? '' : 'en'}
                   </div>
                   <div className="text-muted text-xs mt-0.5">
                     {stats.timeline_entries} Einkäufe ·{' '}
                     {stats.alterations ?? 0} Änderungen ·{' '}
                     {stats.reservations ?? 0} Reservierungen ·{' '}
-                    {stats.order_items} Order-Eintr
-                    {stats.order_items === 1 ? 'ag' : 'äge'}
+                    {stats.order_items} Brands
                   </div>
+                  {stats.order_appointments > 0 && (
+                    <div className="text-muted text-xs mt-0.5">
+                      {stats.order_appointments} Order-Termine
+                    </div>
+                  )}
                 </>
               ) : (
                 <span className="text-muted">Lade …</span>
