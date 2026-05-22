@@ -42,10 +42,11 @@ export default function TimelineTab({ customerId }) {
       {composing && (
         <EntryEditor
           initialArtikel={[emptyArtikel()]}
+          initialDatum={new Date().toISOString()}
           title="Neuer Einkauf"
           onCancel={() => setComposing(false)}
-          onSave={async (artikel) => {
-            await addTimelineEntry({ customerId, artikel });
+          onSave={async ({ artikel, datum }) => {
+            await addTimelineEntry({ customerId, artikel, datum });
             setComposing(false);
           }}
         />
@@ -54,10 +55,11 @@ export default function TimelineTab({ customerId }) {
       {editingEntry && (
         <EntryEditor
           initialArtikel={editingEntry.artikel}
+          initialDatum={editingEntry.datum}
           title="Einkauf bearbeiten"
           onCancel={() => setEditingEntry(null)}
-          onSave={async (artikel) => {
-            await updateTimelineEntry(editingEntry.id, { artikel });
+          onSave={async ({ artikel, datum }) => {
+            await updateTimelineEntry(editingEntry.id, { artikel, datum });
             setEditingEntry(null);
           }}
         />
@@ -90,9 +92,26 @@ export default function TimelineTab({ customerId }) {
   );
 }
 
-function EntryEditor({ initialArtikel, title, onCancel, onSave }) {
+function isoToLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function localInputToIso(local) {
+  if (!local) return null;
+  const d = new Date(local);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+function EntryEditor({ initialArtikel, initialDatum, title, onCancel, onSave }) {
   const [artikel, setArtikel] = useState(() =>
     initialArtikel?.length ? initialArtikel.map((a) => ({ ...a })) : [emptyArtikel()]
+  );
+  const [datumLocal, setDatumLocal] = useState(() =>
+    isoToLocalInput(initialDatum || new Date().toISOString())
   );
   const [saving, setSaving] = useState(false);
 
@@ -112,7 +131,8 @@ function EntryEditor({ initialArtikel, title, onCancel, onSave }) {
     if (!hasContent || saving) return;
     setSaving(true);
     try {
-      await onSave(artikel);
+      const datum = localInputToIso(datumLocal) || new Date().toISOString();
+      await onSave({ artikel, datum });
     } finally {
       setSaving(false);
     }
@@ -130,6 +150,17 @@ function EntryEditor({ initialArtikel, title, onCancel, onSave }) {
           <X size={18} />
         </button>
       </div>
+
+      <label className="block">
+        <span className="text-xs text-muted mb-1 block">Datum & Uhrzeit</span>
+        <input
+          type="datetime-local"
+          value={datumLocal}
+          onChange={(e) => setDatumLocal(e.target.value)}
+          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-base text-left"
+          style={{ colorScheme: 'light' }}
+        />
+      </label>
 
       <ul className="space-y-4">
         {artikel.map((a, idx) => (

@@ -205,19 +205,19 @@ function cleanArtikel(artikel) {
     .filter((a) => a.fotos.length || a.notiz);
 }
 
-export async function addTimelineEntry({ customerId, artikel }) {
+export async function addTimelineEntry({ customerId, artikel, datum }) {
   const now = new Date().toISOString();
   const cleaned = cleanArtikel(artikel);
   if (!cleaned.length) throw new Error('Eintrag enthält keine Artikel.');
   return db.timeline_entries.add({
     kunden_id: customerId,
-    datum: now,
+    datum: datum || now,
     artikel: cleaned,
     erstellt_am: now
   });
 }
 
-export async function updateTimelineEntry(id, { artikel }) {
+export async function updateTimelineEntry(id, { artikel, datum }) {
   const existing = await db.timeline_entries.get(id);
   if (!existing) return;
   const cleaned = cleanArtikel(artikel);
@@ -227,7 +227,7 @@ export async function updateTimelineEntry(id, { artikel }) {
   return db.timeline_entries.put({
     id: existing.id,
     kunden_id: existing.kunden_id,
-    datum: existing.datum,
+    datum: datum || existing.datum,
     erstellt_am: existing.erstellt_am,
     artikel: cleaned
   });
