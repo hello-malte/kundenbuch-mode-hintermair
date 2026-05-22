@@ -253,7 +253,7 @@ function CardShell({ children, tone = 'white', onClick, href }) {
 
 function DateCard({ weekday, day, month, year, kw }) {
   return (
-    <CardShell tone="magenta" href="miCal7://show?view=day">
+    <CardShell tone="magenta" href="miCal7://show?view=week">
       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-auto">
         <Calendar size={20} className="text-brand" />
       </div>
