@@ -53,7 +53,7 @@ export default function CustomerList() {
 
   const handleNew = async () => {
     const id = await createCustomer({ vorname: '', nachname: '' });
-    navigate(`/verkauf/verkauf/kunden/${id}/profil`);
+    navigate(`/verkauf/kunden/${id}/profil`);
   };
 
   const handleDelete = async () => {

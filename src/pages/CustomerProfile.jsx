@@ -100,9 +100,9 @@ export default function CustomerProfile() {
     setDragX(0);
 
     if (dx < -threshold && currentIndex < tabs.length - 1) {
-      navigate(`/verkauf/verkauf/kunden/${id}/${tabs[currentIndex + 1].to}`);
+      navigate(`/verkauf/kunden/${id}/${tabs[currentIndex + 1].to}`);
     } else if (dx > threshold && currentIndex > 0) {
-      navigate(`/verkauf/verkauf/kunden/${id}/${tabs[currentIndex - 1].to}`);
+      navigate(`/verkauf/kunden/${id}/${tabs[currentIndex - 1].to}`);
     }
   };
   const customer = useLiveQuery(
