@@ -128,9 +128,12 @@ export default function OrderDatesOverview() {
                 <Chip label={KATEGORIE_LABELS[filter.abteilung]} />
               )}
               {filter.saison && (
-                <Chip label={SAISON_LABELS_ALL[filter.saison]} />
+                <Chip
+                  label={`${SAISON_LABELS_ALL[filter.saison]}${
+                    filter.saison_jahr ? shortYear(filter.saison_jahr) : ''
+                  }`}
+                />
               )}
-              {filter.saison_jahr && <Chip label={shortYear(filter.saison_jahr)} />}
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <SumBox label="Budget" value={`${totalBudget.toLocaleString('de-DE')} €`} />
@@ -273,7 +276,7 @@ function AppointmentRow({ appointment }) {
           {saisonLabel && (
             <span>
               {saisonLabel}
-              {a.saison_jahr ? ` ${shortYear(a.saison_jahr)}` : ''}
+              {a.saison_jahr ? shortYear(a.saison_jahr) : ''}
             </span>
           )}
           {abteilungen.length > 0 && (
@@ -343,38 +346,50 @@ function FilterSheet({ filter, onApply, onCancel }) {
 
           <div>
             <span className="text-xs text-muted mb-2 block">Saison</span>
-            <div className="flex flex-wrap items-center gap-2">
-              {SAISON_OPTIONS.map((s) => {
-                const active = f.saison === s.value;
-                return (
-                  <button
-                    key={s.value}
-                    type="button"
-                    onClick={() =>
-                      setF((prev) => ({
-                        ...prev,
-                        saison: active ? '' : s.value
-                      }))
-                    }
-                    className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
-                      active
-                        ? 'bg-brand text-white ring-brand'
-                        : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                );
-              })}
-              <input
-                type="number"
-                value={f.saison_jahr}
-                onChange={(e) =>
-                  setF((prev) => ({ ...prev, saison_jahr: e.target.value }))
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const yr = new Date().getFullYear();
+                const buttons = [
+                  { saison: 'fruehjahr_sommer', jahr: String(yr) },
+                  { saison: 'herbst_winter', jahr: String(yr) },
+                  { saison: 'fruehjahr_sommer', jahr: String(yr + 1) },
+                  { saison: 'herbst_winter', jahr: String(yr + 1) }
+                ];
+                if (
+                  f.saison &&
+                  f.saison_jahr &&
+                  !buttons.some(
+                    (b) => b.saison === f.saison && b.jahr === f.saison_jahr
+                  )
+                ) {
+                  buttons.unshift({ saison: f.saison, jahr: f.saison_jahr });
                 }
-                placeholder="Jahr"
-                className="w-24 bg-surface2 rounded-full px-3 py-2 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-sm text-center"
-              />
+                return buttons.map((b) => {
+                  const active =
+                    f.saison === b.saison && f.saison_jahr === b.jahr;
+                  return (
+                    <button
+                      key={`${b.saison}-${b.jahr}`}
+                      type="button"
+                      onClick={() =>
+                        setF((prev) => ({
+                          ...prev,
+                          saison: active ? '' : b.saison,
+                          saison_jahr: active ? '' : b.jahr
+                        }))
+                      }
+                      className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
+                        active
+                          ? 'bg-brand text-white ring-brand'
+                          : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
+                      }`}
+                    >
+                      {SAISON_LABELS_ALL[b.saison]}
+                      {shortYear(b.jahr)}
+                    </button>
+                  );
+                });
+              })()}
             </div>
           </div>
         </div>

@@ -4,8 +4,29 @@ import {
   updateOrderAppointment,
   SAISON_OPTIONS,
   SAISON_LABELS_ALL,
-  SUPPLIER_KATEGORIEN
+  SUPPLIER_KATEGORIEN,
+  shortYear
 } from '../../db/database';
+
+function seasonButtons(currentSaison, currentJahr) {
+  const yr = new Date().getFullYear();
+  const list = [
+    { saison: 'fruehjahr_sommer', jahr: String(yr) },
+    { saison: 'herbst_winter', jahr: String(yr) },
+    { saison: 'fruehjahr_sommer', jahr: String(yr + 1) },
+    { saison: 'herbst_winter', jahr: String(yr + 1) }
+  ];
+  if (
+    currentSaison &&
+    currentJahr &&
+    !list.some(
+      (b) => b.saison === currentSaison && b.jahr === String(currentJahr)
+    )
+  ) {
+    list.unshift({ saison: currentSaison, jahr: String(currentJahr) });
+  }
+  return list;
+}
 import { buildOrderAppointmentICS, shareICS } from '../../utils/ical';
 
 export default function OrderPlanungTab({ appointment, supplier }) {
@@ -100,30 +121,31 @@ export default function OrderPlanungTab({ appointment, supplier }) {
         <div>
           <span className="text-xs text-muted mb-2 block">Saison</span>
           <div className="flex flex-wrap gap-2">
-            {SAISON_OPTIONS.map((s) => {
-              const active = form.saison === s.value;
+            {seasonButtons(form.saison, form.saison_jahr).map((b) => {
+              const active =
+                form.saison === b.saison && String(form.saison_jahr) === b.jahr;
               return (
                 <button
-                  key={s.value}
+                  key={`${b.saison}-${b.jahr}`}
                   type="button"
-                  onClick={() => set('saison', active ? '' : s.value)}
+                  onClick={() =>
+                    setForm((f) => ({
+                      ...f,
+                      saison: active ? '' : b.saison,
+                      saison_jahr: active ? '' : b.jahr
+                    }))
+                  }
                   className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
                     active
                       ? 'bg-brand text-white ring-brand'
                       : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
                   }`}
                 >
-                  {s.label}
+                  {SAISON_LABELS_ALL[b.saison]}
+                  {shortYear(b.jahr)}
                 </button>
               );
             })}
-            <input
-              type="number"
-              value={form.saison_jahr}
-              onChange={(e) => set('saison_jahr', e.target.value)}
-              placeholder="Jahr"
-              className="w-20 bg-surface2 rounded-full px-3 py-2 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-sm text-center"
-            />
           </div>
         </div>
 

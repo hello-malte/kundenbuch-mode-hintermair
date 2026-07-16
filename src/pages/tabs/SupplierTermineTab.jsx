@@ -123,7 +123,7 @@ function AppointmentRow({ appointment }) {
           {saisonLabel && (
             <span>
               {saisonLabel}
-              {a.saison_jahr ? ` ${shortYear(a.saison_jahr)}` : ''}
+              {a.saison_jahr ? shortYear(a.saison_jahr) : ''}
             </span>
           )}
           {a.budget_wert && <span>· {a.budget_wert} €</span>}

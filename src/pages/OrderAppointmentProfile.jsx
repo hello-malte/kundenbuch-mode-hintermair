@@ -186,7 +186,7 @@ export default function OrderAppointmentProfile() {
           {saisonLabel && (
             <div className="text-xs text-muted mt-0.5">
               {saisonLabel}
-              {data.saison_jahr ? ` ${shortYear(data.saison_jahr)}` : ''}
+              {data.saison_jahr ? shortYear(data.saison_jahr) : ''}
             </div>
           )}
         </div>
