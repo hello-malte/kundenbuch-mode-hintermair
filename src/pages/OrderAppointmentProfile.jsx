@@ -11,7 +11,12 @@ import {
 } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import { db, deleteOrderAppointment, SAISON_OPTIONS } from '../db/database';
+import {
+  db,
+  deleteOrderAppointment,
+  SAISON_LABELS_ALL,
+  shortYear
+} from '../db/database';
 import OrderPlanungTab from './tabs/OrderPlanungTab';
 import OrderKonditionenTab from './tabs/OrderKonditionenTab';
 import OrderArtikelTab from './tabs/OrderArtikelTab';
@@ -130,7 +135,7 @@ export default function OrderAppointmentProfile() {
   };
 
   const supplierName = data.supplier?.lieferanten_name || 'Unbekannter Lieferant';
-  const saisonLabel = SAISON_OPTIONS.find((s) => s.value === data.saison)?.label;
+  const saisonLabel = SAISON_LABELS_ALL[data.saison];
   const dateLine = data.termin_am
     ? new Date(data.termin_am).toLocaleDateString('de-DE', {
         weekday: 'short',
@@ -181,7 +186,7 @@ export default function OrderAppointmentProfile() {
           {saisonLabel && (
             <div className="text-xs text-muted mt-0.5">
               {saisonLabel}
-              {data.saison_jahr ? ` ${data.saison_jahr}` : ''}
+              {data.saison_jahr ? ` ${shortYear(data.saison_jahr)}` : ''}
             </div>
           )}
         </div>

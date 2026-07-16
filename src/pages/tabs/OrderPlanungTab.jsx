@@ -129,30 +129,37 @@ export default function OrderPlanungTab({ appointment, supplier }) {
 
         <div>
           <span className="text-xs text-muted mb-2 block">Abteilung</span>
-          <div className="flex flex-wrap gap-2">
-            {SUPPLIER_KATEGORIEN.map((k) => {
-              const active = (form.abteilungen || []).includes(k.value);
-              return (
-                <button
-                  key={k.value}
-                  type="button"
-                  onClick={() => {
-                    const current = form.abteilungen || [];
-                    const next = active
-                      ? current.filter((v) => v !== k.value)
-                      : [...current, k.value];
-                    set('abteilungen', next);
-                  }}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
-                    active
-                      ? 'bg-brand text-white ring-brand'
-                      : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
-                  }`}
-                >
-                  {k.label}
-                </button>
-              );
-            })}
+          <div className="space-y-2">
+            {[
+              SUPPLIER_KATEGORIEN.slice(0, 3),
+              SUPPLIER_KATEGORIEN.slice(3)
+            ].map((row, rowIdx) => (
+              <div key={rowIdx} className="flex flex-wrap gap-2">
+                {row.map((k) => {
+                  const active = (form.abteilungen || []).includes(k.value);
+                  return (
+                    <button
+                      key={k.value}
+                      type="button"
+                      onClick={() => {
+                        const current = form.abteilungen || [];
+                        const next = active
+                          ? current.filter((v) => v !== k.value)
+                          : [...current, k.value];
+                        set('abteilungen', next);
+                      }}
+                      className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
+                        active
+                          ? 'bg-brand text-white ring-brand'
+                          : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
+                      }`}
+                    >
+                      {k.label}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </section>

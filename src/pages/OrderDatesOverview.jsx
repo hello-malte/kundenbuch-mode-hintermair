@@ -7,7 +7,8 @@ import {
   createOrderAppointment,
   SAISON_OPTIONS,
   SAISON_LABELS_ALL,
-  SUPPLIER_KATEGORIEN
+  SUPPLIER_KATEGORIEN,
+  shortYear
 } from '../db/database';
 import Logo from '../components/Logo';
 
@@ -129,7 +130,7 @@ export default function OrderDatesOverview() {
               {filter.saison && (
                 <Chip label={SAISON_LABELS_ALL[filter.saison]} />
               )}
-              {filter.saison_jahr && <Chip label={filter.saison_jahr} />}
+              {filter.saison_jahr && <Chip label={shortYear(filter.saison_jahr)} />}
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <SumBox label="Budget" value={`${totalBudget.toLocaleString('de-DE')} €`} />
@@ -272,7 +273,7 @@ function AppointmentRow({ appointment }) {
           {saisonLabel && (
             <span>
               {saisonLabel}
-              {a.saison_jahr ? ` ${a.saison_jahr}` : ''}
+              {a.saison_jahr ? ` ${shortYear(a.saison_jahr)}` : ''}
             </span>
           )}
           {abteilungen.length > 0 && (

@@ -36,9 +36,9 @@ db.version(4).stores({
 export const SUPPLIER_KATEGORIEN = [
   { value: 'damen', label: 'Damen' },
   { value: 'herren', label: 'Herren' },
-  { value: 'tracht_damen', label: 'Tracht Damen' },
+  { value: 'kinder', label: 'Kinder' },
   { value: 'tracht_herren', label: 'Tracht Herren' },
-  { value: 'kinder', label: 'Kinder' }
+  { value: 'tracht_damen', label: 'Tracht Damen' }
 ];
 
 const supplierDefaults = () => ({
@@ -86,16 +86,21 @@ export async function deleteSupplier(id) {
 }
 
 export const SAISON_OPTIONS = [
-  { value: 'fruehjahr_sommer', label: 'Frühjahr/Sommer' },
-  { value: 'herbst_winter', label: 'Herbst/Winter' }
+  { value: 'fruehjahr_sommer', label: 'FS' },
+  { value: 'herbst_winter', label: 'HW' }
 ];
 
 export const SAISON_LABELS_ALL = {
-  fruehjahr_sommer: 'Frühjahr/Sommer',
-  herbst_winter: 'Herbst/Winter',
+  fruehjahr_sommer: 'FS',
+  herbst_winter: 'HW',
   fruehjahr: 'Frühjahr',
   sommer: 'Sommer'
 };
+
+export function shortYear(y) {
+  const s = String(y || '');
+  return s.length === 4 ? s.slice(-2) : s;
+}
 
 const orderAppointmentDefaults = () => ({
   lieferant_id: null,

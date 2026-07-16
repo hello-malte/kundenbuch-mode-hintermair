@@ -4,12 +4,11 @@ import { Calendar, Plus } from 'lucide-react';
 import {
   db,
   createOrderAppointment,
-  SAISON_OPTIONS
+  SAISON_LABELS_ALL,
+  shortYear
 } from '../../db/database';
 
-const SAISON_LABELS = Object.fromEntries(
-  SAISON_OPTIONS.map((s) => [s.value, s.label])
-);
+const SAISON_LABELS = SAISON_LABELS_ALL;
 
 export default function SupplierTermineTab({ supplierId }) {
   const navigate = useNavigate();
@@ -124,7 +123,7 @@ function AppointmentRow({ appointment }) {
           {saisonLabel && (
             <span>
               {saisonLabel}
-              {a.saison_jahr ? ` ${a.saison_jahr}` : ''}
+              {a.saison_jahr ? ` ${shortYear(a.saison_jahr)}` : ''}
             </span>
           )}
           {a.budget_wert && <span>· {a.budget_wert} €</span>}
