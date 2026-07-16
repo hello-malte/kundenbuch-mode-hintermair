@@ -58,6 +58,10 @@ export default function OrderKonditionenTab({ appointment }) {
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const vorjahr = vorjahrLabel(appointment.saison, appointment.saison_jahr);
+  const aktuell =
+    appointment.saison && appointment.saison_jahr
+      ? `${SAISON_LABELS_ALL[appointment.saison] || ''}${shortYear(appointment.saison_jahr)}`
+      : 'Aktuelle Saison';
 
   return (
     <div className="space-y-4 pb-4">
@@ -92,6 +96,9 @@ export default function OrderKonditionenTab({ appointment }) {
       </section>
 
       <section className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-4 space-y-3">
+        <h3 className="text-xs uppercase tracking-[0.15em] text-brand font-bold">
+          {aktuell}
+        </h3>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className="text-xs text-muted mb-1 block">Budget (€)</span>

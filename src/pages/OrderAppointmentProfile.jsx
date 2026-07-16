@@ -23,7 +23,7 @@ import OrderArtikelTab from './tabs/OrderArtikelTab';
 
 const tabs = [
   { to: 'planung', label: 'Planung' },
-  { to: 'konditionen', label: 'Konditionen' },
+  { to: 'konditionen', label: 'Details' },
   { to: 'artikel', label: 'Artikel' }
 ];
 

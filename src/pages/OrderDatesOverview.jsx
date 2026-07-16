@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Calendar, Plus, X, Truck, SlidersHorizontal } from 'lucide-react';
+import { Plus, X, Truck, SlidersHorizontal } from 'lucide-react';
 import {
   db,
   createOrderAppointment,
@@ -85,27 +85,41 @@ export default function OrderDatesOverview() {
     (sum, a) => sum + (parseFloat(a.budget_stueckzahl) || 0),
     0
   );
+  const totalVorjahrWert = filtered.reduce(
+    (sum, a) => sum + (parseFloat(a.vorjahr_order_wert) || 0),
+    0
+  );
+  const totalVorjahrStueck = filtered.reduce(
+    (sum, a) => sum + (parseFloat(a.vorjahr_order_stueckzahl) || 0),
+    0
+  );
+
+  const currentLabel =
+    filter.saison && filter.saison_jahr
+      ? `${SAISON_LABELS_ALL[filter.saison] || ''}${shortYear(filter.saison_jahr)}`
+      : null;
+  const vorjahrLabelStr =
+    filter.saison && filter.saison_jahr
+      ? `${SAISON_LABELS_ALL[filter.saison] || ''}${shortYear(String(parseInt(filter.saison_jahr, 10) - 1))}`
+      : null;
 
   return (
     <div className="safe-top">
       <header className="px-4 pt-3 pb-3 sticky top-0 bg-bg/95 backdrop-blur z-30">
         <div className="flex items-center justify-between mb-3 min-h-[40px]">
           <Logo />
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setFilterOpen(true)}
-              className={`p-2 active:opacity-60 relative ${
-                hasActiveFilter ? 'text-brand' : 'text-muted'
-              }`}
-              aria-label="Filter"
-            >
-              <SlidersHorizontal size={22} />
-              {hasActiveFilter && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand ring-2 ring-bg" />
-              )}
-            </button>
-            <Calendar size={22} className="text-brand" />
-          </div>
+          <button
+            onClick={() => setFilterOpen(true)}
+            className={`p-2 active:opacity-60 relative ${
+              hasActiveFilter ? 'text-brand' : 'text-muted'
+            }`}
+            aria-label="Filter"
+          >
+            <SlidersHorizontal size={22} />
+            {hasActiveFilter && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand ring-2 ring-bg" />
+            )}
+          </button>
         </div>
 
         {hasActiveFilter && (
@@ -135,10 +149,51 @@ export default function OrderDatesOverview() {
                 />
               )}
             </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <SumBox label="Budget" value={`${totalBudget.toLocaleString('de-DE')} €`} />
-              <SumBox label="Stück" value={totalStueck.toLocaleString('de-DE')} />
-            </div>
+            {vorjahrLabelStr ? (
+              <div className="space-y-2">
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-brand/70 font-medium mb-1">
+                    {vorjahrLabelStr} · Vorjahr
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <SumBox
+                      label="Order"
+                      value={`${totalVorjahrWert.toLocaleString('de-DE')} €`}
+                    />
+                    <SumBox
+                      label="Stück"
+                      value={totalVorjahrStueck.toLocaleString('de-DE')}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-brand font-medium mb-1">
+                    {currentLabel} · aktuell
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <SumBox
+                      label="Budget"
+                      value={`${totalBudget.toLocaleString('de-DE')} €`}
+                    />
+                    <SumBox
+                      label="Stück"
+                      value={totalStueck.toLocaleString('de-DE')}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <SumBox
+                  label="Budget"
+                  value={`${totalBudget.toLocaleString('de-DE')} €`}
+                />
+                <SumBox
+                  label="Stück"
+                  value={totalStueck.toLocaleString('de-DE')}
+                />
+              </div>
+            )}
           </div>
         )}
       </header>
