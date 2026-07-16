@@ -152,7 +152,7 @@ export default function OrderDatesOverview() {
             {vorjahrLabelStr ? (
               <div className="space-y-2">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-brand/70 font-medium mb-1">
+                  <div className="text-sm uppercase tracking-wide text-brand/70 font-bold mb-1.5">
                     {vorjahrLabelStr} · Vorjahr
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -167,12 +167,12 @@ export default function OrderDatesOverview() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-brand font-medium mb-1">
+                  <div className="text-sm uppercase tracking-wide text-brand font-bold mb-1.5">
                     {currentLabel} · aktuell
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <SumBox
-                      label="Budget"
+                      label="Order"
                       value={`${totalBudget.toLocaleString('de-DE')} €`}
                     />
                     <SumBox
@@ -185,7 +185,7 @@ export default function OrderDatesOverview() {
             ) : (
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <SumBox
-                  label="Budget"
+                  label="Order"
                   value={`${totalBudget.toLocaleString('de-DE')} €`}
                 />
                 <SumBox

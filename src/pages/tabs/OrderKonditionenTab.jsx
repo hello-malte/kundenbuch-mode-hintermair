@@ -101,7 +101,7 @@ export default function OrderKonditionenTab({ appointment }) {
         </h3>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="text-xs text-muted mb-1 block">Budget (€)</span>
+            <span className="text-xs text-muted mb-1 block">Order (€)</span>
             <input
               type="number"
               inputMode="decimal"
