@@ -19,7 +19,7 @@ const HOME_TAB = {
 
 const HOME_TABS = [
   { to: '/verkauf/kunden', label: 'Verkauf', icon: Users, match: '/verkauf' },
-  { to: '/einkauf/lieferanten', label: 'Einkauf', icon: Truck, match: '/einkauf' }
+  { to: '/einkauf/termine', label: 'Einkauf', icon: Truck, match: '/einkauf' }
 ];
 
 const VERKAUF_TABS = [

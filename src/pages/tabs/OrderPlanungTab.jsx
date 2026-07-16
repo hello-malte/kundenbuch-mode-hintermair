@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { Calendar, Check } from 'lucide-react';
-import { updateOrderAppointment, SAISON_OPTIONS } from '../../db/database';
+import {
+  updateOrderAppointment,
+  SAISON_OPTIONS,
+  SAISON_LABELS_ALL,
+  SUPPLIER_KATEGORIEN
+} from '../../db/database';
 import { buildOrderAppointmentICS, shareICS } from '../../utils/ical';
 
 export default function OrderPlanungTab({ appointment, supplier }) {
   const [form, setForm] = useState({
     termin_am: appointment.termin_am || '',
-    saison: appointment.saison || '',
+    saison: appointment.saison || 'fruehjahr_sommer',
     saison_jahr:
-      appointment.saison_jahr || String(new Date().getFullYear())
+      appointment.saison_jahr || String(new Date().getFullYear()),
+    abteilungen: appointment.abteilungen || []
   });
   const skipRef = useRef(true);
   const saveTimerRef = useRef(null);
@@ -17,9 +23,10 @@ export default function OrderPlanungTab({ appointment, supplier }) {
   useEffect(() => {
     setForm({
       termin_am: appointment.termin_am || '',
-      saison: appointment.saison || '',
+      saison: appointment.saison || 'fruehjahr_sommer',
       saison_jahr:
-        appointment.saison_jahr || String(new Date().getFullYear())
+        appointment.saison_jahr || String(new Date().getFullYear()),
+      abteilungen: appointment.abteilungen || []
     });
     skipRef.current = true;
   }, [appointment.id]);
@@ -46,8 +53,7 @@ export default function OrderPlanungTab({ appointment, supplier }) {
       return;
     }
     const supplierName = supplier?.lieferanten_name || 'Lieferant';
-    const saisonLabel =
-      SAISON_OPTIONS.find((s) => s.value === form.saison)?.label || '';
+    const saisonLabel = SAISON_LABELS_ALL[form.saison] || '';
     const summary = `Order ${supplierName}${saisonLabel ? ` – ${saisonLabel} ${form.saison_jahr || ''}` : ''}`.trim();
     const lines = [];
     if (appointment.budget_wert) lines.push(`Budget: ${appointment.budget_wert} €`);
@@ -118,6 +124,35 @@ export default function OrderPlanungTab({ appointment, supplier }) {
               placeholder="Jahr"
               className="w-20 bg-surface2 rounded-full px-3 py-2 outline-none ring-1 ring-brand/40 focus:ring-2 focus:ring-brand text-sm text-center"
             />
+          </div>
+        </div>
+
+        <div>
+          <span className="text-xs text-muted mb-2 block">Abteilung</span>
+          <div className="flex flex-wrap gap-2">
+            {SUPPLIER_KATEGORIEN.map((k) => {
+              const active = (form.abteilungen || []).includes(k.value);
+              return (
+                <button
+                  key={k.value}
+                  type="button"
+                  onClick={() => {
+                    const current = form.abteilungen || [];
+                    const next = active
+                      ? current.filter((v) => v !== k.value)
+                      : [...current, k.value];
+                    set('abteilungen', next);
+                  }}
+                  className={`px-3 py-2 rounded-full text-sm font-medium ring-1 transition-colors ${
+                    active
+                      ? 'bg-brand text-white ring-brand'
+                      : 'bg-surface text-ink ring-brand/40 active:bg-surface2'
+                  }`}
+                >
+                  {k.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

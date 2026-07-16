@@ -86,10 +86,16 @@ export async function deleteSupplier(id) {
 }
 
 export const SAISON_OPTIONS = [
-  { value: 'fruehjahr', label: 'Frühjahr' },
-  { value: 'sommer', label: 'Sommer' },
+  { value: 'fruehjahr_sommer', label: 'Frühjahr/Sommer' },
   { value: 'herbst_winter', label: 'Herbst/Winter' }
 ];
+
+export const SAISON_LABELS_ALL = {
+  fruehjahr_sommer: 'Frühjahr/Sommer',
+  herbst_winter: 'Herbst/Winter',
+  fruehjahr: 'Frühjahr',
+  sommer: 'Sommer'
+};
 
 const orderAppointmentDefaults = () => ({
   lieferant_id: null,
@@ -98,9 +104,10 @@ const orderAppointmentDefaults = () => ({
   budget_stueckzahl: '',
   liefertermin_von: '',
   liefertermin_bis: '',
-  saison: '',
+  saison: 'fruehjahr_sommer',
   saison_jahr: String(new Date().getFullYear()),
   konditionen: '',
+  abteilungen: [],
   artikel: []
 });
 
