@@ -1,7 +1,108 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, Trash2, Eye, EyeOff, Edit3, Check, X } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Edit3, Check, X, Truck } from 'lucide-react';
 import { db, addOrderItem, updateOrderItem, deleteOrderItem } from '../../db/database';
+
+function useSupplierList() {
+  return (
+    useLiveQuery(
+      () =>
+        db.suppliers
+          .filter((s) => (s.lieferanten_name || '').trim().length > 0)
+          .toArray()
+          .then((list) =>
+            list.sort((a, b) =>
+              (a.lieferanten_name || '').localeCompare(
+                b.lieferanten_name || '',
+                'de'
+              )
+            )
+          ),
+      []
+    ) || []
+  );
+}
+
+function SupplierAutocomplete({
+  value,
+  onChange,
+  suppliers,
+  placeholder = 'Lieferant',
+  autoFocus = false
+}) {
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, []);
+
+  const query = value.trim().toLowerCase();
+  const filtered = query
+    ? suppliers.filter((s) =>
+        (s.lieferanten_name || '').toLowerCase().includes(query)
+      )
+    : suppliers;
+
+  const showList = open && filtered.length > 0;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <input
+        ref={inputRef}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        autoComplete="off"
+        className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
+      />
+      {showList && (
+        <ul className="absolute top-full left-0 right-0 mt-1 bg-surface ring-1 ring-brand/40 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto scroll-touch">
+          {filtered.map((s) => (
+            <li key={s.id}>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onChange(s.lieferanten_name);
+                  setOpen(false);
+                }}
+                className="w-full flex items-center gap-2 text-left px-3 py-2.5 active:bg-surface2 hover:bg-surface2 border-b border-black/5 last:border-b-0"
+              >
+                <Truck size={16} className="text-brand/60 shrink-0" />
+                <span className="text-sm truncate">
+                  {s.lieferanten_name}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function OrderTab({ customerId }) {
   const [brand, setBrand] = useState('');
@@ -19,21 +120,7 @@ export default function OrderTab({ customerId }) {
     [customerId]
   );
 
-  const suppliers = useLiveQuery(
-    () =>
-      db.suppliers
-        .filter((s) => (s.lieferanten_name || '').trim().length > 0)
-        .toArray()
-        .then((list) =>
-          list.sort((a, b) =>
-            (a.lieferanten_name || '').localeCompare(
-              b.lieferanten_name || '',
-              'de'
-            )
-          )
-        ),
-    []
-  ) || [];
+  const suppliers = useSupplierList();
 
   const add = async () => {
     if (!brand.trim()) return;
@@ -50,19 +137,12 @@ export default function OrderTab({ customerId }) {
   return (
     <div className="space-y-4 pb-4">
       <div className="bg-surface rounded-2xl ring-1 ring-black/5 shadow-sm shadow-black/[0.02] p-3 space-y-2">
-        <input
+        <SupplierAutocomplete
           value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          placeholder="Lieferant (Vorschläge aus Lieferantenliste)"
-          list="supplier-suggestions"
-          autoComplete="off"
-          className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
+          onChange={setBrand}
+          suppliers={suppliers}
+          placeholder="Lieferant (aus der Lieferantenliste)"
         />
-        <datalist id="supplier-suggestions">
-          {suppliers.map((s) => (
-            <option key={s.id} value={s.lieferanten_name} />
-          ))}
-        </datalist>
         <input
           value={notiz}
           onChange={(e) => setNotiz(e.target.value)}
@@ -101,7 +181,7 @@ export default function OrderTab({ customerId }) {
       <ul className="space-y-2">
         {visible.length === 0 && (
           <li className="text-muted text-center py-10">
-            Noch keine Brands für diesen Kunden.
+            Noch keine Lieferanten für diesen Kunden.
           </li>
         )}
         {visible.map((i) =>
@@ -109,6 +189,7 @@ export default function OrderTab({ customerId }) {
             <OrderItemEditor
               key={i.id}
               item={i}
+              suppliers={suppliers}
               onSave={async (patch) => {
                 await updateOrderItem(i.id, patch);
                 setEditingId(null);
@@ -171,7 +252,7 @@ function OrderItemRow({ item, onToggle, onEdit, onDelete }) {
   );
 }
 
-function OrderItemEditor({ item, onSave, onCancel }) {
+function OrderItemEditor({ item, suppliers, onSave, onCancel }) {
   const [brand, setBrand] = useState(item.brand || '');
   const [notiz, setNotiz] = useState(item.notiz || '');
   const [saving, setSaving] = useState(false);
@@ -188,14 +269,12 @@ function OrderItemEditor({ item, onSave, onCancel }) {
 
   return (
     <li className="bg-surface rounded-xl ring-1 ring-brand/40 p-3 space-y-2">
-      <input
-        autoFocus
+      <SupplierAutocomplete
         value={brand}
-        onChange={(e) => setBrand(e.target.value)}
+        onChange={setBrand}
+        suppliers={suppliers}
         placeholder="Lieferant"
-        list="supplier-suggestions"
-        autoComplete="off"
-        className="w-full bg-surface2 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-brand text-base"
+        autoFocus
       />
       <input
         value={notiz}
