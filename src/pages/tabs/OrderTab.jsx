@@ -19,6 +19,22 @@ export default function OrderTab({ customerId }) {
     [customerId]
   );
 
+  const suppliers = useLiveQuery(
+    () =>
+      db.suppliers
+        .filter((s) => (s.lieferanten_name || '').trim().length > 0)
+        .toArray()
+        .then((list) =>
+          list.sort((a, b) =>
+            (a.lieferanten_name || '').localeCompare(
+              b.lieferanten_name || '',
+              'de'
+            )
+          )
+        ),
+    []
+  ) || [];
+
   const add = async () => {
     if (!brand.trim()) return;
     await addOrderItem({ customerId, brand, notiz });
@@ -37,9 +53,16 @@ export default function OrderTab({ customerId }) {
         <input
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
-          placeholder="Brand (z.B. CIRCOLO 1901)"
+          placeholder="Lieferant (Vorschläge aus Lieferantenliste)"
+          list="supplier-suggestions"
+          autoComplete="off"
           className="w-full bg-surface2 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-brand text-base"
         />
+        <datalist id="supplier-suggestions">
+          {suppliers.map((s) => (
+            <option key={s.id} value={s.lieferanten_name} />
+          ))}
+        </datalist>
         <input
           value={notiz}
           onChange={(e) => setNotiz(e.target.value)}
@@ -169,7 +192,9 @@ function OrderItemEditor({ item, onSave, onCancel }) {
         autoFocus
         value={brand}
         onChange={(e) => setBrand(e.target.value)}
-        placeholder="Brand"
+        placeholder="Lieferant"
+        list="supplier-suggestions"
+        autoComplete="off"
         className="w-full bg-surface2 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-brand text-base"
       />
       <input

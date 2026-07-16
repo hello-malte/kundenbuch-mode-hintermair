@@ -19,11 +19,13 @@ import {
 } from '../db/database';
 import OrderPlanungTab from './tabs/OrderPlanungTab';
 import OrderKonditionenTab from './tabs/OrderKonditionenTab';
+import OrderKundenTab from './tabs/OrderKundenTab';
 import OrderArtikelTab from './tabs/OrderArtikelTab';
 
 const tabs = [
   { to: 'planung', label: 'Planung' },
   { to: 'konditionen', label: 'Details' },
+  { to: 'kunden', label: 'Kunden' },
   { to: 'artikel', label: 'Artikel' }
 ];
 
@@ -236,6 +238,10 @@ export default function OrderAppointmentProfile() {
           <Route
             path="konditionen"
             element={<OrderKonditionenTab appointment={data} />}
+          />
+          <Route
+            path="kunden"
+            element={<OrderKundenTab supplier={data.supplier} />}
           />
           <Route
             path="artikel"
