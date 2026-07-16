@@ -19,14 +19,7 @@ export default function SupplierTermineTab({ supplierId }) {
       db.order_appointments
         .where('lieferant_id')
         .equals(supplierId)
-        .toArray()
-        .then((list) =>
-          list.sort((a, b) =>
-            (b.termin_am || b.erstellt_am || '').localeCompare(
-              a.termin_am || a.erstellt_am || ''
-            )
-          )
-        ),
+        .toArray(),
     [supplierId]
   );
 
@@ -37,8 +30,20 @@ export default function SupplierTermineTab({ supplierId }) {
 
   const list = appointments || [];
   const nowIso = new Date().toISOString();
-  const upcoming = list.filter((a) => (a.termin_am || '') >= nowIso);
-  const past = list.filter((a) => (a.termin_am || '') < nowIso);
+  const upcoming = list
+    .filter((a) => (a.termin_am || '') >= nowIso)
+    .sort((a, b) =>
+      (a.termin_am || a.erstellt_am || '').localeCompare(
+        b.termin_am || b.erstellt_am || ''
+      )
+    );
+  const past = list
+    .filter((a) => (a.termin_am || '') < nowIso)
+    .sort((a, b) =>
+      (b.termin_am || b.erstellt_am || '').localeCompare(
+        a.termin_am || a.erstellt_am || ''
+      )
+    );
 
   return (
     <div className="space-y-4">

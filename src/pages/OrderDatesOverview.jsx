@@ -17,13 +17,7 @@ export default function OrderDatesOverview() {
       db.suppliers.toArray()
     ]);
     const map = new Map(suppliers.map((s) => [s.id, s]));
-    return appts
-      .map((a) => ({ ...a, supplier: map.get(a.lieferant_id) }))
-      .sort((a, b) =>
-        (b.termin_am || b.erstellt_am || '').localeCompare(
-          a.termin_am || a.erstellt_am || ''
-        )
-      );
+    return appts.map((a) => ({ ...a, supplier: map.get(a.lieferant_id) }));
   }, []);
 
   if (data === undefined) {
@@ -31,8 +25,20 @@ export default function OrderDatesOverview() {
   }
 
   const nowIso = new Date().toISOString();
-  const upcoming = data.filter((a) => (a.termin_am || '') >= nowIso);
-  const past = data.filter((a) => (a.termin_am || '') < nowIso);
+  const upcoming = data
+    .filter((a) => (a.termin_am || '') >= nowIso)
+    .sort((a, b) =>
+      (a.termin_am || a.erstellt_am || '').localeCompare(
+        b.termin_am || b.erstellt_am || ''
+      )
+    );
+  const past = data
+    .filter((a) => (a.termin_am || '') < nowIso)
+    .sort((a, b) =>
+      (b.termin_am || b.erstellt_am || '').localeCompare(
+        a.termin_am || a.erstellt_am || ''
+      )
+    );
 
   return (
     <div className="safe-top">
