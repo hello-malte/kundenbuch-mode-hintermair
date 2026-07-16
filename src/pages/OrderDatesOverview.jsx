@@ -34,17 +34,14 @@ export default function OrderDatesOverview() {
     return appts.map((a) => ({ ...a, supplier: map.get(a.lieferant_id) }));
   }, []);
 
-  if (data === undefined) {
-    return <div className="p-8 text-muted">Lade …</div>;
-  }
-
   const hasActiveFilter = Boolean(
     filter.abteilung || filter.saison || filter.saison_jahr
   );
 
   const filtered = useMemo(() => {
-    if (!hasActiveFilter) return data;
-    return data.filter((a) => {
+    const list = data || [];
+    if (!hasActiveFilter) return list;
+    return list.filter((a) => {
       if (filter.saison && a.saison !== filter.saison) return false;
       if (
         filter.saison_jahr &&
@@ -58,6 +55,10 @@ export default function OrderDatesOverview() {
       return true;
     });
   }, [data, filter, hasActiveFilter]);
+
+  if (data === undefined) {
+    return <div className="p-8 text-muted">Lade …</div>;
+  }
 
   const nowIso = new Date().toISOString();
   const upcoming = filtered
